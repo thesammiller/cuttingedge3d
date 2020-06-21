@@ -11,6 +11,7 @@
 		4CE6963A24A00B70008CDD0F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6963924A00B70008CDD0F /* ViewController.swift */; };
 		4CE6963C24A00B71008CDD0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CE6963B24A00B71008CDD0F /* Assets.xcassets */; };
 		4CE6963F24A00B71008CDD0F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CE6963D24A00B71008CDD0F /* Main.storyboard */; };
+		4CE6964824A00D1C008CDD0F /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6964724A00D1C008CDD0F /* Renderer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		4CE6963E24A00B71008CDD0F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4CE6964024A00B71008CDD0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CE6964124A00B71008CDD0F /* CuttingEdge.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CuttingEdge.entitlements; sourceTree = "<group>"; };
+		4CE6964724A00D1C008CDD0F /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +57,7 @@
 			children = (
 				4CE6963724A00B70008CDD0F /* AppDelegate.swift */,
 				4CE6963924A00B70008CDD0F /* ViewController.swift */,
+				4CE6964724A00D1C008CDD0F /* Renderer.swift */,
 				4CE6963B24A00B71008CDD0F /* Assets.xcassets */,
 				4CE6963D24A00B71008CDD0F /* Main.storyboard */,
 				4CE6964024A00B71008CDD0F /* Info.plist */,
@@ -134,6 +137,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CE6963A24A00B70008CDD0F /* ViewController.swift in Sources */,
+				4CE6964824A00D1C008CDD0F /* Renderer.swift in Sources */,
 				4CE6963824A00B70008CDD0F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
