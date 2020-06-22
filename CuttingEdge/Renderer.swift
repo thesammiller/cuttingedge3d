@@ -15,12 +15,23 @@ struct rgba {
     var alpha: Double = 1
 }
 
-class Renderer: NSObject {
+class Renderer: NSObject, MTKViewDelegate {
+    
+    
+    var vertices: [Float] = [
+        -1, 1, 0,
+        -1, -1, 0,
+        1, -1, 0,
+    ]
+    
+    var indices: [UInt16] = [
+        0, 1, 2]
     
     static var device: MTLDevice!
     static var commandQueue: MTLCommandQueue!
     
     var vertexBuffer: MTLBuffer!
+    var indexBuffer: MTLBuffer!
     var pipelineState: MTLRenderPipelineState!
     
     init(metalView: MTKView) {
@@ -36,9 +47,18 @@ class Renderer: NSObject {
         Renderer.commandQueue = commandQueue
         metalView.device = device
         
+        //mdlMesh
+        // vertexBuffer = mesh.vertexBuffers[0].buffer
+        // do something more manual below
+        // should steal the indexed triangles from the video for Ray Wenderlich
+        //let data: [Int] = [3]
+        
         // super init in the middle
         super.init()
         // middle
+        
+        buildModel()
+        buildPipelineState()
         
         var clearColor = rgba()
         clearColor.green = 1
@@ -54,36 +74,73 @@ class Renderer: NSObject {
         // create library of metal shaders
         // what is in the metal shader default library?
         
-        let pipelineDescriptor = MTLRenderPipelineDescriptor()
-        
-        do {
-            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-        } catch let error {
-            fatalError(error.localizedDescription)
-        }
-        
         
     }
 }
 
-extension Renderer: MTKViewDelegate {
+
+// Building Model and Pipeline State
+extension Renderer {
+    
+    private func buildModel() {
+        vertexBuffer = Renderer.device.makeBuffer(bytes: vertices,
+                                         length: vertices.count*MemoryLayout<Float>.size,
+                                         options: []) as! MTLBuffer
+        indexBuffer = Renderer.device.makeBuffer(bytes: indices,
+                                                 length: indices.count * MemoryLayout<UInt16>.size,
+                                                 options: []) as! MTLBuffer
+    }
+    
+    private func buildPipelineState() {
+        let library = Renderer.device.makeDefaultLibrary()
+        let vertexFunction = library?.makeFunction(name: "vertex_main")
+        let fragmentFunction = library?.makeFunction(name: "fragment_main")
+        
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        pipelineDescriptor.vertexFunction = vertexFunction
+        pipelineDescriptor.fragmentFunction = fragmentFunction
+        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        
+        do {
+            pipelineState = try Renderer.device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+        } catch let error as NSError {
+            print("error: \(error.localizedDescription)")
+        }
+    
+    }
+    
+}
+
+//MTKViewDelegate Conformity
+extension Renderer {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     func draw(in view: MTKView) {
+        guard
+            let drawable = view.currentDrawable
+                else { return }
+        
         guard
             let descriptor = view.currentRenderPassDescriptor,
             let commandBuffer = Renderer.commandQueue.makeCommandBuffer(),
             let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {
                 return }
         
+        
+        
+        //renderEncoder.setVertexBytes(data, length: MemoryLayout<Int>.stride, index: 0)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         // for submesh in meshes
         
-        renderEncoder.endEncoding()
-        guard let drawable = view.currentDrawable else {
-            return }
+        renderEncoder.drawIndexedPrimitives(type: .triangle,
+                                             indexCount: indices.count,
+                                             indexType: .uint16,
+                                             indexBuffer: indexBuffer,
+                                             indexBufferOffset: 0)
         
+        // ENDING
+        renderEncoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
     }
