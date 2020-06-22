@@ -11,8 +11,8 @@ import MetalKit
 
 class Panel3d {
     
-    var VPoint: [Point3d] = [Point3d(), Point3d(), Point3d(), Point3d()]
-    var SPoint: [Float] = [Float(0), Float(0), Float(0), Float(0), Float(0)]
+    var VPoint: [Point3d] = []
+    var SPoint: [Float] = []
     var Normal: Vector = Vector()
     
     var SPCount: Int = 0
@@ -37,4 +37,25 @@ class Panel3d {
 
 class PanelObject: Panel3d { }
 
-
+extension Panel3d {
+    func CalcRadius() {
+        //calculate the radius of the panel
+        var TempPoint: [Point3d] = []
+        var Center: Point3d = Point3d()
+        var Distance: [Double] = []
+        var Dist: Double
+        
+        for Count in 0...4 {
+            TempPoint[Count] = VPoint[Count]
+        }
+        
+        for Count in 0...4 {
+            Center += TempPoint [Count]
+        }
+        
+        Center /= Float(4.0)
+        
+        
+            
+    }
+}

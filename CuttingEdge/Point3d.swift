@@ -12,7 +12,7 @@ import MetalKit
 
 let defaultValue = simd_make_float4(0)
 
-class Point3d: Equatable {
+class Point3d {
     
     var local: simd_float4
     var world: simd_float4
@@ -22,6 +22,13 @@ class Point3d: Equatable {
         self.local = local
         self.world = world
     }
+}
+
+extension Point3d: Equatable {
+    
+    // ****************
+    // POINT FUNCTIONS
+    // ****************
     
     static func != (left: Point3d, right: Point3d) -> Bool {
         return left.local != right.local
@@ -55,49 +62,80 @@ class Point3d: Equatable {
         return t
     }
     
-    static func -= (left: Point3d, right: Point3d) -> Point3d {
+    static func -= (left: inout Point3d, right: Point3d) {
         left.local -= right.local
-        return left
     }
     
-    static func += (left: Point3d, right: Point3d) -> Point3d {
+    static func += (left: inout Point3d, right: Point3d) {
         left.local += right.local
-        return left
     }
     
-    static func *= (left: Point3d, right: Point3d) -> Point3d {
+    static func *= (left: inout Point3d, right: Point3d) {
         left.local *= right.local
-        return left
     }
     
-    static func /= (left: Point3d, right: Point3d) -> Point3d {
+    static func /= ( left: inout Point3d, right: Point3d) {
         left.local /= right.local
-        return left
     }
-
-    static func * (left: Point3d, right: Float) -> Point3d {
-        left.local *= right
-        return left
-    }
-    
-    static func / (left: Point3d, right: Float) -> Point3d {
+    static func /= (left: inout Point3d, right: Float) {
         left.local /= right
-        return left
     }
     
-    static func + (left: Point3d, right: Float) -> Point3d {
+    //******************
+    // SCALAR FUNCTIONS
+    // ****************
+
+    static func *= (left: inout Point3d, right: Float) {
+        left.local *= right
+    }
+    
+    
+    
+    static func += (left: inout Point3d, right: Float) {
         left.local[0] += right
         left.local[1] += right
         left.local[2] += right
-        return left
     }
     
-    static func - (left: Point3d, right: Float) -> Point3d {
+    static func -= (left: inout Point3d, right: Float) {
         left.local[0] -= right
         left.local[1] -= right
         left.local[2] -= right
-        return left
     }
+    
+    static func * (left: Point3d, right: Float) -> Point3d {
+          var t: Point3d
+          t.local[0] = left.local[0] * right
+          t.local[1] = left.local[1] * right
+          t.local[2] = left.local[2] * right
+          return t
+      }
+      
+      static func / (left: Point3d, right: Float) -> Point3d {
+          var t: Point3d
+          t.local[0] = left.local[0] / right
+          t.local[1] = left.local[1] / right
+          t.local[2] = left.local[2] / right
+          return t
+      }
+      
+      static func + (left: Point3d, right: Float) -> Point3d {
+          var t: Point3d
+          t.local[0] = left.local[0] + right
+          t.local[1] = left.local[1] + right
+          t.local[2] = left.local[2] + right
+          return t
+      }
+      
+      static func - (left: Point3d, right: Float) -> Point3d {
+          var t: Point3d
+          t.local[0] = left.local[0] - right
+          t.local[1] = left.local[1] - right
+          t.local[2] = left.local[2] - right
+          return t
+      }
+    
+    
 
     func Mag() -> Float {
         return sqrt( pow(self.local[0], 2) + pow(self.local[1], 2) + pow(self.local[2], 2) )
