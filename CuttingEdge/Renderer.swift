@@ -24,8 +24,6 @@ class Renderer: NSObject {
     var pipelineState: MTLRenderPipelineState!
     
     init(metalView: MTKView) {
-        super.init()
-        
         guard
             let device = MTLCreateSystemDefaultDevice(),
             let commandQueue = device.makeCommandQueue() else {
@@ -35,8 +33,12 @@ class Renderer: NSObject {
         Renderer.commandQueue = commandQueue
         metalView.device = device
         
+        // super init in the middle
+        super.init()
+        // middle
+        
         var clearColor = rgba()
-        clearColor.red = 1
+        clearColor.green = 1
         
         metalView.clearColor = MTLClearColor(red: clearColor.red,
                                              green: clearColor.green,
@@ -44,6 +46,20 @@ class Renderer: NSObject {
                                              alpha: clearColor.alpha)
         
         metalView.delegate = self
+        // mdlmesh
+        
+        // create library of metal shaders
+        
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        
+        do {
+            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+        } catch let error {
+            fatalError(error.localizedDescription)
+        }
+        
+        
+        
         
     }
 }
@@ -52,6 +68,22 @@ extension Renderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     func draw(in view: MTKView) {
-        print("here")
+        guard
+            let descriptor = view.currentRenderPassDescriptor,
+            let commandBuffer = Renderer.commandQueue.makeCommandBuffer(),
+            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {
+                return }
+        
+        renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        // for submesh in meshes
+        
+        renderEncoder.endEncoding()
+        guard let drawable = view.currentDrawable else {
+            return }
+        
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
     }
 }
+

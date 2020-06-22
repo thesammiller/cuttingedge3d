@@ -21,7 +21,20 @@ class ViewController: NSViewController {
         
         var renderer: Renderer?
         
+        
         renderer = Renderer(metalView: metalView)
+        
+        
+        var p: Point3d
+        var q: Point3d
+        var pl: simd_float4
+        var ql: simd_float4
+        pl = simd_make_float4(2, 1, 1, 1)
+        ql = simd_make_float4(1, 1, 1, 1)
+        p = Point3d(local: pl)
+        q = Point3d(local: ql)
+        
+        print(p.DotUnit(q))
 
         
     }
