@@ -10,15 +10,17 @@
 
 import MetalKit
 
+let defaultValue = simd_make_float4(0)
+
 class Point3d: Equatable {
     
-    var local: simd_float4 = simd_make_float4(0)
-    var world: simd_float4 = simd_make_float4(0)
+    var local: simd_float4
+    var world: simd_float4
     
-    init(_ local: simd_float4, world: simd_float4) {
+    
+    init(_ local: simd_float4=defaultValue, world: simd_float4=defaultValue) {
         self.local = local
         self.world = world
-        }
     }
     
     static func != (left: Point3d, right: Point3d) -> Bool {
@@ -54,9 +56,8 @@ class Point3d: Equatable {
     }
     
     static func -= (left: Point3d, right: Point3d) -> Point3d {
-        var t = left
-        t.local -= right.local
-        return t
+        left.local -= right.local
+        return left
     }
     
     static func += (left: Point3d, right: Point3d) -> Point3d {
@@ -99,7 +100,12 @@ class Point3d: Equatable {
     }
 
     func Mag() -> Float {
-        return sqrt( pow(local[0], 2) + pow(local[1], 2) + pow(local[2], 2) )
+        return sqrt( pow(self.local[0], 2) + pow(self.local[1], 2) + pow(self.local[2], 2) )
+    }
+
+    func MTLMag() -> Float {
+        // metal has a sqrt unction...
+        return 0
     }
     
     
@@ -139,6 +145,12 @@ func UniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
         }
     }
     return true
+}
+
+func MTLUniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
+    //if it's a for loop, it can be paralleled!
+    print("MTLUniqueVert not implemented")
+    return false
 }
 
 func GetVertexIndex (V: Point3d, List: [Point3d], Range: Int) -> Int {

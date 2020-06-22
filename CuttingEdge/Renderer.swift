@@ -29,6 +29,9 @@ class Renderer: NSObject {
             let commandQueue = device.makeCommandQueue() else {
                 fatalError("GPU not available.")
         }
+        
+        print("No MTL Compute commands have been implemented.")
+        
         Renderer.device = device
         Renderer.commandQueue = commandQueue
         metalView.device = device
@@ -49,6 +52,7 @@ class Renderer: NSObject {
         // mdlmesh
         
         // create library of metal shaders
+        // what is in the metal shader default library?
         
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         
@@ -57,8 +61,6 @@ class Renderer: NSObject {
         } catch let error {
             fatalError(error.localizedDescription)
         }
-        
-        
         
         
     }

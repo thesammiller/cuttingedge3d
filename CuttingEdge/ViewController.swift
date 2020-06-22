@@ -31,8 +31,8 @@ class ViewController: NSViewController {
         var ql: simd_float4
         pl = simd_make_float4(2, 1, 1, 1)
         ql = simd_make_float4(1, 1, 1, 1)
-        p = Point3d(local: pl)
-        q = Point3d(local: ql)
+        p = Point3d(pl)
+        q = Point3d(ql)
         
         print(p.DotUnit(q))
 

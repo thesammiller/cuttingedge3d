@@ -27,6 +27,12 @@ class Panel3d {
     func HasVert(P: Point3d) -> Bool {
         return VPoint.contains(P)
     }
+    
+    func MTLHasVert(P: Point3d) -> Bool {
+        //I'd think that a true/false like this would be embarrassingly parallel
+        print("Panel3d -> MTLHasVert not implemented.")
+        return false
+    }
 }
 
 class PanelObject: Panel3d { }
