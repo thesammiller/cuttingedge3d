@@ -20,6 +20,9 @@ class ViewController: NSViewController {
         
     
         renderer = Renderer(metalView: metalView)
+        
+        
+
 
         
     }

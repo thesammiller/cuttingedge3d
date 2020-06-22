@@ -82,11 +82,17 @@ extension Panel3d {
     }
         
     func CalcInten() {
-        var Mag: Double
-        Mag = sqrt(1) // Light.X * Light.X + Light.Y * Light.Y + Light.Z * Light.Z
-            //p. 115 in the book. I'll come back when I need to.
-        print("Panel3d -> CalcIntent not implemented. Dummy result.")
-        Color = Double(Mag) // pseudo answer for now
+        var Mag: Float
+        Mag = sqrt(Light.X * Light.X +
+            Light.Y * Light.Y +
+            Light.Z * Light.Z  )
+        
+        var CosA: Float
+        CosA = ( (Normal.direction[x] - VPoint[0].local[x]) * Light.X +
+            (Normal.direction[y] - VPoint[0].local[y]) * Light.Y +
+            (Normal.direction[z] - VPoint[0].local[z]) * Light.Z ) / Mag
+            
+        Color = Double(CosA * COLOR_RANGE + COLOR_START)
     }
         
     func Project() {
@@ -378,7 +384,122 @@ extension Panel3d {
         }
     }
     
-    func Display() {}
+    
+    // when do we use the passed in argument?
+    func Display(Dest: Int) {
+        var RColor: Double // color of the panel
+        var DPtr: Int // pointer to the off-screen buffer (!)
+        var ZPtr: Int // Zbuffer ptr
+        
+        var LeftSeg: CeilLine = CeilLine()
+        var RightSeg: CeilLine = CeilLine() // used for interpolating values along sides
+        
+        var Top, RightPos, LeftPos, NewRightPos, NewLeftPos, Height, EdgeCount, YIndex, Width, XStart, XEnd, DeltaZ, ZStep, Z: Int
+        Top = 0
+        
+        RColor = Color
+        EdgeCount = SPCount
+        
+        //Search for lowest Y Coordinate (top of polyon)
+        for N in 0...SPCount {
+            if (SPoint[N].Y < SPoint[Top].Y) {
+                Top = N
+            }
+        }
+        RightPos = Top
+        LeftPos = Top
+        
+        //Calculate the index to the buffer
+        YIndex = Int(SPoint[Top].Y * 320)
+        print("Hard coded 320 in Panel3d -> Display")
+        
+        //loop for all Polygon edges
+        while (EdgeCount > 0) {
+            //determine if the right side of the polygon needs (re)initializing
+            if (RightSeg.Height() <= 0) {
+                NewRightPos = RightPos + 1
+                if (NewRightPos >= SPCount ) {
+                    NewRightPos = 0}
+                RightSeg.Init(SPoint[RightPos], SPoint[NewRightPos])
+                RightPos = NewRightPos
+                EdgeCount -= 1
+                //perform object precision clip on top edge
+                //(if necessary)
+                if (RightSeg.GetY() < MINY) {
+                    RightSeg.ClipTop(MINY)
+                    YIndex = MINY * 320
+                    print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
+                }
+            }
+            //determine if the left side of the polygon needs (re)initializing
+            if (LeftSeg.Height() <= 0) {
+                NewLeftPos = LeftPos - 1
+                if (NewLeftPos < 0) {
+                    NewLeftPos = (SPCount - 1 )
+                }
+                LeftSeg.Init(SPoint[LeftPos], SPoint[NewLeftPos])
+                LeftPos = NewLeftPos
+                EdgeCount -= 1
+                // perform object precision clip if neccessary
+                if (LeftSeg.GetY() < MINY) {
+                    LeftSeg.ClipTop(MINY)
+                    YIndex = MINY * 320
+                }
+            }
+            
+            //subdivide polygon into trapezoid
+            if (LeftSeg.Height() < RightSeg.Height()) {
+                Height = LeftSeg.Height()
+                if ( (LeftSeg.GetY() + Height) > MAXY) {
+                    Height = MAXY - LeftSeg.GetY()
+                    EdgeCount = 0
+                }
+            } else {
+                Height = RightSeg.Height()
+                if ( (RightSeg.GetY() + Height ) > MAXY ) {
+                    Height = MAXY - RightSeg.GetY()
+                    EdgeCount = 0
+                }
+            }
+            
+            //loop for the height of the trapezoid
+            while (Height > 0) {
+                Height -= 1
+                XStart = LeftSeg.GetX()
+                XEnd = RightSeg.GetX()
+                Width = XEnd - XStart
+                if (Width > 0) {
+                    Z = LeftSeg.GetZ()
+                    DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
+                    ZStep = DeltaZ / Width
+                    
+                    //Clip the scan line
+                    ClipHLine(XStart, XEnd, Z, ZStep)
+                    Width = XEnd - XStart
+                    DPtr = Dest[YIndex + XStart]
+                    ZPtr = ZBuffer[YIndex + XStart]
+                    
+                    //loop for width of scan-LINE_MAX
+                    while ( Width > 0 ) {
+                        Width -= 1
+                        if (ZPtr < Z) {
+                            ZPtr = ZPtr
+                            DPtr = (Z >> 18) // bit shift
+                        }
+                        Z += ZStep
+                        DPtr += 1
+                        ZPtr += 1
+                    }
+                }
+                RightSeg += 1
+                LeftSeg += 1
+                Index += 320
+                    
+            }
+            
+        }
+            
+    }
     
 }
 
