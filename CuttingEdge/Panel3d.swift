@@ -182,7 +182,7 @@ extension Panel3d {
                 UniqueVerts[Range] = TVert
                 Range+=1
             }else {
-                if UniqueVert(TVert, UniqueVerts, Range) {
+                if UniqueVert(V: TVert, List: UniqueVerts, Range: Range) {
                     UniqueVerts[Range] = TVert
                     Range += 1
                 }
@@ -214,7 +214,7 @@ extension Panel3d {
         Normal.direction[y] = (B/Distance) + VPoint[0].local[y]
         Normal.direction[z] = (C/Distance) + VPoint[0].local[z]
     }
-
+    
     func CalcBFace() -> Int {
         //determine if polygon is a backface
         var Visible: Int = 1
@@ -250,8 +250,8 @@ extension Panel3d {
         //is there a better way to bool an int in swift? WTF is this language.
         if (Visible == 1) {
             Visible = CheckExtents()
-            return Visible
         }
+        return Visible
     }
     
     func CalcCenterZ() -> Float {
@@ -262,23 +262,83 @@ extension Panel3d {
                             VPoint[2].world[z] +
                             VPoint[3].world[z]
         
-        CenterZ = SummedComponents/4 // original has a bitshift here
+        CenterZ = SummedComponents/Float(VPoint.count)
         
         return CenterZ
         
     }
     
     
-    func CalcVisible2D() {
+    func CalcVisible2D() -> Int {
+        // perform 2d culling
+        var XMinInVis: Int = 0
+        var XMaxInVis: Int = 0
+        var YMinInVis: Int = 0
+        var YMaxInVis: Int = 0
+        var Visible: Int = 1
+        var AveX: Float = 0
+        var AveY: Float = 0
+        Invis = 0
         
+        // make sure the panel has more than two points
+        if (SPCount < 3) {
+            //if not, flag panel as invisible
+            Visible = 0
+            // Assume Panel will remain Invisible for four more frames
+            Invis = 4
+            return Visible
+        }
+        for N in 0...SPCount {
+            if (SPoint[N].X < MINX) {
+                XMinInVis += 1
+            }
+            else {
+                if (SPoint[N].X > MAXX) {
+                    XMaxInVis += 1
+                }
+            }
+            if (SPoint[N].Y < MINY) {
+                YMinInVis += 1
+            }
+            else if (SPoint[N].Y > MAXY) {
+                YMaxInVis += 1
+            }
+        
+            AveX += SPoint[N].X
+            AveY += SPoint[N].Y
+        }
+        if (XMinInVis >= SPCount) {
+            //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
+            AveX /= Float(SPCount)
+            Invis = Int(abs(AveX)/(320 * 26)) // NOT SURE WHAT THESE HARD CODED NUMBERS ARE
+            print("Hard coded numbers 320 * 26 in CalcVisible 2d in Panel3d")
+            Visible = 0
+        }
+        if (YMinInVis >= SPCount) {
+            AveY /= Float(SPCount)
+            Invis = Int(abs(AveY)/(200*26))
+            print("Hard coded numbers 200*26 in CalcVisible 2d in Panel 3d")
+            Visible = 0
+            }
+        if (XMaxInVis >= SPCount) {
+            //assume panel will remain invisible for a time
+            AveX /= Float(SPCount)
+            Invis = Int((AveX-MAXX) / (320*26))
+            Visible = 0
+        }
+        if (YMaxInVis >= SPCount) {
+            AveY/=Float(SPCount)
+            Invis = (AveY-MAXY)/(200*26)
+            Visible = 0
+        }
+
+        return Visible
     }
     
     func CheckExtents() -> Int { return 0 }
     
     func Display() {}
     
-    
-
 }
 
         
