@@ -6,19 +6,17 @@
 //  Copyright © 2020 brogrammer. All rights reserved.
 //
 
- 
  #include <metal_stdlib>
  using namespace metal;
 
- struct VertexIn {
-     float4 position [[ attribute(0) ]];
- };
 
- vertex float4 vertex_main(const VertexIn vertex_in [[ stage_in ]]) {
-     return vertex_in.position;
+ vertex float4 vertex_main(const device packed_float3 *vertices [[ buffer(0)]],
+                             uint vertexId [[ vertex_id ]] ) {
+     
+     return float4(vertices[vertexId], 1);
  }
 
- fragment float4 fragment_main() {
-     return float4(0, 0.4, 0.21, 1);
+ fragment half4 fragment_main() {
+     half red=0;
+     return half4(red, 1, 0, 1);
  }
- 

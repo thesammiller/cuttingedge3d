@@ -128,11 +128,8 @@ extension Renderer {
         
         
         
-        //renderEncoder.setVertexBytes(data, length: MemoryLayout<Int>.stride, index: 0)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        // for submesh in meshes
-        
         renderEncoder.drawIndexedPrimitives(type: .triangle,
                                              indexCount: indices.count,
                                              indexType: .uint16,

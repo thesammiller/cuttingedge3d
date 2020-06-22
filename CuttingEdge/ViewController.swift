@@ -9,19 +9,16 @@
 import MetalKit
 
 class ViewController: NSViewController {
+    var metalView : MTKView {
+           return view as! MTKView
+       }
     
-    
+    var renderer: Renderer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let metalView = view as? MTKView else {
-            fatalError("metal view not set up in storyboard.")
-        }
-        
-        var renderer: Renderer?
-        
-        
+    
         renderer = Renderer(metalView: metalView)
         
         
