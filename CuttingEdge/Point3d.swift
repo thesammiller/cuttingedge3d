@@ -104,7 +104,7 @@ extension Point3d: Equatable {
     }
     
     static func * (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d
+          var t: Point3d = Point3d()
           t.local[0] = left.local[0] * right
           t.local[1] = left.local[1] * right
           t.local[2] = left.local[2] * right
@@ -112,7 +112,7 @@ extension Point3d: Equatable {
       }
       
       static func / (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d
+          var t: Point3d = Point3d()
           t.local[0] = left.local[0] / right
           t.local[1] = left.local[1] / right
           t.local[2] = left.local[2] / right
@@ -120,7 +120,7 @@ extension Point3d: Equatable {
       }
       
       static func + (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d
+          var t: Point3d = Point3d()
           t.local[0] = left.local[0] + right
           t.local[1] = left.local[1] + right
           t.local[2] = left.local[2] + right
@@ -128,7 +128,7 @@ extension Point3d: Equatable {
       }
       
       static func - (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d
+          var t: Point3d = Point3d()
           t.local[0] = left.local[0] - right
           t.local[1] = left.local[1] - right
           t.local[2] = left.local[2] - right

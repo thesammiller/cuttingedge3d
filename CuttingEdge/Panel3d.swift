@@ -38,6 +38,7 @@ class Panel3d {
 class PanelObject: Panel3d { }
 
 extension Panel3d {
+    
     func CalcRadius() {
         //calculate the radius of the panel
         var TempPoint: [Point3d] = []
