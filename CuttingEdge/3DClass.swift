@@ -15,7 +15,7 @@ let z = 2
 let MINZ = Float(100)
 
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
-let XSCALE = 1
+let XSCALE = Float(1)
 let ZSTEP_PREC = 1
 
 

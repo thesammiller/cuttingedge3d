@@ -93,7 +93,7 @@ extension Panel3d {
         SPCount = 4
         var Count: Int = 0
         var OutCount: Int = 0
-        var OneOverZ: Double
+        var OneOverZ: Float
         var ZClipPoint: [Point3d] = []
         
         
@@ -161,16 +161,123 @@ extension Panel3d {
             
             SPoint[Count].X = ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(160)
             SPoint[Count].Y = ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(100)
-            SPoint[Count].Z = OneOverZ * (1 << ZSTEP_PREC)
+            
+            // this right now multiplies to 1 --> will need to return to logic
+            SPoint[Count].Z = OneOverZ * Float((1 * ZSTEP_PREC)) // C++ uses 1 << bit shift
             
         }
         
         
     }
+    
+    func CalcNormal() {
+        var X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, Distance, A, B, C: Float
+        var UniqueVerts: [Point3d] = []
+        var TVert: Point3d
+        var Range: Int = 0
+        
+        for Count in 0...4 {
+            TVert = VPoint[Count]
+            if (Range == 0) {
+                UniqueVerts[Range] = TVert
+                Range+=1
+            }else {
+                if UniqueVert(TVert, UniqueVerts, Range) {
+                    UniqueVerts[Range] = TVert
+                    Range += 1
+                }
+            }
+        }
+        
+        X1 = UniqueVerts[0].local[x]
+        Y1 = UniqueVerts[0].local[y]
+        Z1 = UniqueVerts[0].local[z]
+        
+        X2 = UniqueVerts[1].local[x]
+        Y2 = UniqueVerts[1].local[y]
+        Z2 = UniqueVerts[1].local[z]
+        
+        X3 = UniqueVerts[2].local[x]
+        Y3 = UniqueVerts[2].local[y]
+        Z3 = UniqueVerts[2].local[z]
+        
+        //use plane equation to determine plane orientation
+        A = Y1 * (Z2-Z3) + Y2 * (Z3-Z1) + Y3 * (Z1-Z2)
+        B = Z1 * (X2-X3) + Z2 * (X3-X1) + Z3 + (X1-X2)
+        C = X1 * (Y2-Y3) + X2 * (Y3-Y1) + X3 * (Y1-Y2)
+        
+        //Get the distance to the vector
+        Distance = sqrt(A*A + B*B + C*C)
+        
+        //Normalize the normal to 1 and create a point
+        Normal.direction[x] = (A/Distance) + VPoint[0].local[x]
+        Normal.direction[y] = (B/Distance) + VPoint[0].local[y]
+        Normal.direction[z] = (C/Distance) + VPoint[0].local[z]
+    }
 
-
-
-
+    func CalcBFace() -> Int {
+        //determine if polygon is a backface
+        var Visible: Int = 1
+        var Invis: Int = 0
+        var Direction: Float
+        
+        var V: Point3d = VPoint[0]
+        
+        Direction = V.world[x] * (Normal.transformed[x] - VPoint[0].world[x]) +
+        V.world[y] * (Normal.transformed[y] - VPoint[0].world[y]) +
+        V.world[z] * (Normal.transformed[z] - VPoint[0].world[z])
+        
+        if Direction > Float(0) {
+            //get the cosine of the angle between the viewer and the polygon normal
+            Direction /= V.Mag()
+            //assume panel will remain time proportional to the angle between the viewer to the normal
+            Invis = Int(Direction * Float(25))
+            Visible = 0
+            
+        }
+        return Visible
+    }
+    
+    func CalcVisible3d() -> Int {
+        //perform 3d culling
+        
+        //assume panel is visible
+        var Visible: Int
+        
+        Visible = CalcBFace()
+        
+        //If Panel still visible perform extent test
+        //is there a better way to bool an int in swift? WTF is this language.
+        if (Visible == 1) {
+            Visible = CheckExtents()
+            return Visible
+        }
+    }
+    
+    func CalcCenterZ() -> Float {
+        var SummedComponents, CenterZ: Float
+        
+        SummedComponents = VPoint[0].world[z] +
+                            VPoint[1].world[z] +
+                            VPoint[2].world[z] +
+                            VPoint[3].world[z]
+        
+        CenterZ = SummedComponents/4 // original has a bitshift here
+        
+        return CenterZ
+        
+    }
+    
+    
+    func CalcVisible2D() {
+        
+    }
+    
+    func CheckExtents() -> Int { return 0 }
+    
+    func Display() {}
+    
+    
 
 }
 
