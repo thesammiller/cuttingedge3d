@@ -25,6 +25,7 @@ let MINX = Float(0)
 let MAXX = Float(400)
 let MINY = Float(0)
 let MAXY = Float(600)
+let MAXZ = Float(400)
 
 
 

@@ -328,14 +328,55 @@ extension Panel3d {
         }
         if (YMaxInVis >= SPCount) {
             AveY/=Float(SPCount)
-            Invis = (AveY-MAXY)/(200*26)
+            Invis = Int((AveY-MAXY)/(200*26))
             Visible = 0
         }
 
         return Visible
     }
     
-    func CheckExtents() -> Int { return 0 }
+    func CheckExtents() -> Int {
+        var Visible: Int = 0
+        var MinZ: Float
+        
+        for Count in 0...4 {
+            if (VPoint[Count].world[z] > MINZ) {
+                Visible = 1
+                Invis = 0
+                break
+            }
+        }
+        if (Visible == 1) {
+            MinZ = VPoint[0].world[z]
+            for Count in 0...4 {
+                if(VPoint[Count].world[z] < MinZ) {
+                    MinZ = VPoint[Count].world[z]
+                }
+            }
+            if (MinZ > MAXZ)
+            {
+                // set the invisible flag for this frame
+                Visible = 0
+                // assume panel will remain invisible for time proportional
+                Invis = Int((MinZ-MAXZ)/50)
+            }
+        }
+        else {
+            //make invisible
+            Invis = Int((abs(CalcCenterZ()))/50)
+        }
+        
+        return Visible
+    }
+
+    func Update(M: Matrix3d) {
+        
+        M.Transform(Normal)
+        
+        if (Invis > 0) {
+            Invis -= 1
+        }
+    }
     
     func Display() {}
     
