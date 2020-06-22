@@ -39,25 +39,25 @@ extension Point3d: Equatable {
     }
     
     static func - (left: Point3d, right: Point3d) -> Point3d {
-        var t = Point3d()
+        let t = Point3d()
         t.local = left.local - right.local
         return t
     }
     
     static func + (left: Point3d, right: Point3d) -> Point3d {
-        var t = Point3d()
+        let t = Point3d()
         t.local = left.local + right.local
         return t
     }
     
     static func * (left: Point3d, right: Point3d) -> Point3d {
-        var t = Point3d()
+        let t = Point3d()
         t.local = left.local * right.local
         return t
     }
     
     static func / (left: Point3d, right: Point3d) -> Point3d {
-        var t = Point3d()
+        let t = Point3d()
         t.local = left.local / right.local
         return t
     }
@@ -92,46 +92,46 @@ extension Point3d: Equatable {
     
     
     static func += (left: inout Point3d, right: Float) {
-        left.local[0] += right
-        left.local[1] += right
-        left.local[2] += right
+        left.local[x] += right
+        left.local[y] += right
+        left.local[z] += right
     }
     
     static func -= (left: inout Point3d, right: Float) {
-        left.local[0] -= right
-        left.local[1] -= right
-        left.local[2] -= right
+        left.local[x] -= right
+        left.local[y] -= right
+        left.local[z] -= right
     }
     
     static func * (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d = Point3d()
-          t.local[0] = left.local[0] * right
-          t.local[1] = left.local[1] * right
-          t.local[2] = left.local[2] * right
+          let t: Point3d = Point3d()
+          t.local[x] = left.local[x] * right
+          t.local[y] = left.local[y] * right
+          t.local[z] = left.local[z] * right
           return t
       }
       
       static func / (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d = Point3d()
-          t.local[0] = left.local[0] / right
-          t.local[1] = left.local[1] / right
-          t.local[2] = left.local[2] / right
+          let t: Point3d = Point3d()
+          t.local[x] = left.local[x] / right
+          t.local[y] = left.local[y] / right
+          t.local[z] = left.local[z] / right
           return t
       }
       
       static func + (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d = Point3d()
-          t.local[0] = left.local[0] + right
-          t.local[1] = left.local[1] + right
-          t.local[2] = left.local[2] + right
+          let t: Point3d = Point3d()
+          t.local[x] = left.local[x] + right
+          t.local[y] = left.local[y] + right
+          t.local[z] = left.local[z] + right
           return t
       }
       
       static func - (left: Point3d, right: Float) -> Point3d {
-          var t: Point3d = Point3d()
-          t.local[0] = left.local[0] - right
-          t.local[1] = left.local[1] - right
-          t.local[2] = left.local[2] - right
+          let t: Point3d = Point3d()
+          t.local[x] = left.local[x] - right
+          t.local[y] = left.local[y] - right
+          t.local[z] = left.local[z] - right
           return t
       }
     
@@ -141,7 +141,7 @@ extension Point3d: Equatable {
         return sqrt( pow(self.local[0], 2) + pow(self.local[1], 2) + pow(self.local[2], 2) )
     }
 
-    func MTLMag() -> Float {
+    func MTLMag() -> Double {
         // metal has a sqrt unction...
         return 0
     }
