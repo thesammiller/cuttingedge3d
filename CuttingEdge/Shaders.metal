@@ -17,6 +17,5 @@
  }
 
  fragment half4 fragment_main() {
-     half red=0;
-     return half4(red, 1, 0, 1);
+     return half4(1, 1, 1, 1);
  }
