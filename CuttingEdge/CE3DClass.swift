@@ -6,10 +6,12 @@
 //  Copyright © 2020 brogrammer. All rights reserved.
 //
 
+import Foundation
 
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
 let COLOR_RANGE = 255
 let COLOR_START = 0
+let DEGREECOUNT = 1024
 
 //********************
 // helpers for the indexing of functions
@@ -44,6 +46,18 @@ let YSCALE = -120
 var ZBuffer: [Int] = []
 var ZTrans: Int = 0
 
+var CosTable: [Float] = []
+var SinTable: [Float] = []
 
 
+func InitMath() {
+    var Unit: Float
+    Unit = Float(PI) * Float(2) / Float(DEGREECOUNT)
+    
+    for N in 0...DEGREECOUNT {
+        let Degree = Float(N)
+        CosTable[N] = Float(cos(Unit*Degree))
+        SinTable[N] = Float(sin(Unit*Degree))
+    }
+}
 
