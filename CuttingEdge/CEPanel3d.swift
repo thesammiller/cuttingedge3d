@@ -482,7 +482,7 @@ extension Panel3d {
                     while ( Width > 0 ) {
                         Width -= 1
                         if (ZPtr < Z) {
-                            ZPtr = ZPtr
+                            ZPtr = Z
                             DPtr = (Z >> 18) // bit shift
                         }
                         Z += ZStep
