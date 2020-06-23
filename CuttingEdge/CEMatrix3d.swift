@@ -69,29 +69,41 @@ class Matrix3d {
         print("Consider using Look Up Tables.")
         
         //initialize Z rotation first
+        let fZa = Float(Za)
+        let cosfza = cos(fZa)
+        let sinfza = sin(fZa)
+        
         Rmat = IDENTITY_MATRIX
-        Rmat[0][0] = cos(Float(Za))
-        Rmat[0][1] = sin(Float(Za))
-        Rmat[1][0] = sin(Float(Za))
-        Rmat[1][1] = cos(Float(Za))
+        Rmat[0][0] = cosfza
+        Rmat[0][1] = sinfza
+        Rmat[1][0] = sinfza
+        Rmat[1][1] = cosfza
         
         RMatrix *= Rmat
         
         //initialize X Rotation Matrix
+        let fXa = Float(Xa)
+        let cosfxa = cos(fXa)
+        let sinfxa = sin(fXa)
+        
         Rmat = IDENTITY_MATRIX
-        Rmat[1][1] = cos(Float(Xa))
-        Rmat[1][2] = sin(Float(Xa))
-        Rmat[2][1] = sin(Float(Xa))
-        Rmat[2][2] = cos(Float(Xa))
+        Rmat[1][1] = cosfxa
+        Rmat[1][2] = sinfxa
+        Rmat[2][1] = sinfxa
+        Rmat[2][2] = cosfxa
         
         RMatrix *= Rmat
         
         //initialize Y Rotation Matrix
+        let fYa = Float(Ya)
+        let cosfya = cos(fYa)
+        let sinfya = sin(fYa)
+        
         Rmat = IDENTITY_MATRIX
-        Rmat[0][0] = cos(Float(Ya))
-        Rmat[0][2] = sin(Float(Ya))
-        Rmat[2][0] = sin(Float(Ya))
-        Rmat[2][2] = cos(Float(Ya))
+        Rmat[0][0] = cosfya
+        Rmat[0][2] = sinfya
+        Rmat[2][0] = sinfya
+        Rmat[2][2] = cosfya
         
         RMatrix *= Rmat
         
