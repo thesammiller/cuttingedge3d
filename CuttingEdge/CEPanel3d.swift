@@ -8,6 +8,42 @@
 
 import MetalKit
 
+// this is << XSTEP_PREC, not sure what it really is doing
+let CEIL_FRACT = 1
+
+func ClipHLine (X1: Int, X2: Int, Z: Int, ZStep: Int ) -> simd_int4 {
+    // Clip a horizontal "Z-buffered" line:
+    var f: simd_int4 = simd_make_int4(0)
+    var x1, x2, z, zstep: Int
+    x1 = X1
+    x2 = X2
+    z = Z
+    zstep = ZStep
+    
+    if ( x1 < MINX ) {
+           // Take advantage of the fact that ( a * ( b * f ) / f )
+           // is equal to ( a * b );
+        z += zstep * ( MINX - x1 )
+        x1 = MINX
+    }
+    
+    if ( x1 > MAXX ) {
+        x1 = MAXX}
+    
+    if ( x2 < MINX ) {
+        x2 = MINX}
+    
+    if  ( x2 > MAXX ) {
+        x2 = MAXX}
+        
+    f[0] = Int32(x1)
+    f[1] = Int32(x2)
+    f[2] = Int32(z)
+    f[3] = Int32(zstep)
+    return f
+    }
+
+
 class Panel3d {
     
     var VPoint: [Point3d] = []
@@ -483,7 +519,12 @@ extension Panel3d {
                     ZStep = DeltaZ / Width
                     
                     //Clip the scan line
-                    ClipHLine(XStart, XEnd, Z, ZStep)
+                    var f: simd_int4
+                    f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
+                    XStart = Int(f[0])
+                    XEnd = Int(f[1])
+                    Z = Int(f[2])
+                    ZStep = Int(f[3])
                     Width = XEnd - XStart
                     DPtr = Dest[YIndex + XStart]
                     ZPtr = ZBuffer[YIndex + XStart]
