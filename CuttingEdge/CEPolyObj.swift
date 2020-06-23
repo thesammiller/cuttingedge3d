@@ -55,7 +55,7 @@ class PanelObject {
         }
     }
     
-    func Display(_ M: Matrix3d, _ Buffer: Int )  // a display function
+    func Display(_ M: Matrix3d, _ Buffer: [Int] )  // a display function
     {
         Transform(M)
         

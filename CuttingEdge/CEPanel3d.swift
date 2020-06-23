@@ -16,10 +16,10 @@ class Panel3d {
     
     var SPCount: Int = 0
     var Invis: Int = 0
-    var Color: Double = 0
-    var Padding: Double = 0
+    var Color: Float = 0
+    var Padding: Float = 0
     
-    var Radius: Double = 0
+    var Radius: Float = 0
     
     init () {
         CalcNormal()
@@ -44,8 +44,8 @@ extension Panel3d {
         //calculate the radius of the panel
         var TempPoint: [Point3d] = []
         var Center: Point3d = Point3d()
-        var Distance: [Double] = []
-        var Dist: Double
+        var Distance: [Float] = []
+        var Dist: Float
         
         for Count in 0...4 {
             TempPoint[Count] = VPoint[Count]
@@ -62,7 +62,7 @@ extension Panel3d {
         }
         
         for Count in 0...4 {
-            Dist = Double(TempPoint[Count].Mag())
+            Dist = TempPoint[Count].Mag()
             Distance[Count] = Dist
         }
         
@@ -94,16 +94,14 @@ extension Panel3d {
             (Normal.direction[y] - VPoint[0].local[y]) * Light.Y +
             (Normal.direction[z] - VPoint[0].local[z]) * Light.Z ) / Mag
             
-        Color = Int(CosA) * Int(COLOR_RANGE + COLOR_START)
+        Color = CosA * Float(COLOR_RANGE) + Float(COLOR_START)
     }
         
     func Project() {
         SPCount = 4
-        var Count: Int = 0
         var OutCount: Int = 0
         var OneOverZ: Float
         var ZClipPoint: [Point3d] = []
-        
         
         var StartI = Int(SPCount - 1)
             
@@ -167,11 +165,15 @@ extension Panel3d {
             //calculate 1/z for vector normalization
             OneOverZ = Float(1)/ZClipPoint[Count].world[z]
             
-            SPoint[Count].X = Int(ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(160))
-            SPoint[Count].Y = Int(ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(100))
+            var zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
+            
+            SPoint[Count].X = Int(zclip) + 160
+            SPoint[Count].Y = Int(zclip) + 100
+            
+            print("Hard coded data Panel3d -> Spoint.")
             
             // this right now multiplies to 1 --> will need to return to logic
-            SPoint[Count].Z = OneOverZ * Float((1 * ZSTEP_PREC)) // C++ uses 1 << bit shift
+            SPoint[Count].Z = Int(OneOverZ * Float((1 * ZSTEP_PREC))) // C++ uses 1 << bit shift
             
         }
         
@@ -312,8 +314,8 @@ extension Panel3d {
                 YMaxInVis += 1
             }
         
-            AveX += SPoint[N].X
-            AveY += SPoint[N].Y
+            AveX += Float(SPoint[N].X)
+            AveY += Float(SPoint[N].Y)
         }
         if (XMinInVis >= SPCount) {
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
@@ -331,12 +333,16 @@ extension Panel3d {
         if (XMaxInVis >= SPCount) {
             //assume panel will remain invisible for a time
             AveX /= Float(SPCount)
-            Invis = Int((AveX-MAXX) / (320*26))
+            let num = (AveX-Float(MAXX))
+            let den = Float(320*26)
+            Invis = Int( num/den )
             Visible = 0
         }
         if (YMaxInVis >= SPCount) {
             AveY/=Float(SPCount)
-            Invis = Int((AveY-MAXY)/(200*26))
+            let num = (AveY-Float(MAXY))
+            let den = Float(200*26)
+            Invis = Int(num/den)
             Visible = 0
         }
 
@@ -388,8 +394,9 @@ extension Panel3d {
     
     
     // when do we use the passed in argument?
-    func Display(Dest: Int) {
-        var RColor: Double // color of the panel
+    // dest is a buffer???????
+    func Display(Dest: [Int]) {
+        var RColor: Float // color of the panel
         var DPtr: Int // pointer to the off-screen buffer (!)
         var ZPtr: Int // Zbuffer ptr
         
@@ -422,7 +429,7 @@ extension Panel3d {
                 NewRightPos = RightPos + 1
                 if (NewRightPos >= SPCount ) {
                     NewRightPos = 0}
-                RightSeg = CeilLine(SPoint[RightPos], SPoint[NewRightPos])
+                RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
                 RightPos = NewRightPos
                 EdgeCount -= 1
                 //perform object precision clip on top edge
@@ -439,7 +446,7 @@ extension Panel3d {
                 if (NewLeftPos < 0) {
                     NewLeftPos = (SPCount - 1 )
                 }
-                LeftSeg = CeilLine(SPoint[LeftPos], SPoint[NewLeftPos])
+                LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
                 LeftPos = NewLeftPos
                 EdgeCount -= 1
                 // perform object precision clip if neccessary
@@ -493,9 +500,9 @@ extension Panel3d {
                         ZPtr += 1
                     }
                 }
-                RightSeg += 1
-                LeftSeg += 1
-                Index += 320
+                //RightSeg += 1 --> Why increment RightSeg? What for?
+                //LeftSeg += 1
+                YIndex += 320
                     
             }
             

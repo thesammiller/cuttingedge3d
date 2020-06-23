@@ -14,7 +14,7 @@ class CeilLine {
     var X, StepX, StepZ, Z: Int
     var EdgeHeight, Y: Int
     
-    init (P1: Point2d, P2: Point2d) {
+    init (P1: Point2d = Point2d(), P2: Point2d = Point2d()) {
         
         var FWidth, DeltaZ, Z1, Z2: Int
         
