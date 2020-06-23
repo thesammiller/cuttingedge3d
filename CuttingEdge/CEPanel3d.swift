@@ -21,7 +21,10 @@ class Panel3d {
     
     var Radius: Double = 0
     
-    init () {    }
+    init () {
+        CalcNormal()
+        CalcRadius()
+    }
     
     func HasVert(P: Point3d) -> Bool {
         return VPoint.contains(P)

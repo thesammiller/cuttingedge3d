@@ -16,20 +16,29 @@ let LIGHTY: Float = 100
 let LIGHTZ: Float = 4
 
 
-let MINZ = 100
+
+let PI = 3.141592654
+let MINX = 10
+let MAXX = 309
+let MINY = 10
+let MAXY = 189
+let WIDTH = 320
+let HEIGHT = 200
+let XCENTER = 160
+let YCENTER = 100
+let MINZ = Float(100)
+let MAXZ = Float(10000)
+let XSCALE = 120
+let YSCALE = -120
 
 
+//var ZBuffer: [Int] = []
+//var ZTrans: Int
 
 
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
-let XSCALE = 1
-let ZSTEP_PREC = 1
 
-let MINX = 0
-let MAXX = 400
-let MINY = 0
-let MAXY = 600
-let MAXZ = 400
+let ZSTEP_PREC = 1
 
 let COLOR_RANGE = 255
 let COLOR_START = 0

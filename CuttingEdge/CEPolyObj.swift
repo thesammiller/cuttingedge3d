@@ -72,7 +72,7 @@ class PanelObject {
         }
     }
     
-    func DXFLoadCoord(_ InFile: String) -> Point3d {
+    func DXFLoadCoord(_ InFile: [String]) -> Point3d {
         var S: [String] = []
         var Coord = Point3d()
         
@@ -131,7 +131,7 @@ class PanelObject {
         return Coord
     }
     
-    func CountPanels(_ FileName: String) -> Int {
+    func DXFCountPanels(_ FileName: String) -> Int {
         var PanelCount: Int = 0
         let S = GetLine(FileName, "dxf")
         
@@ -143,18 +143,87 @@ class PanelObject {
         return PanelCount
     }
     
-    func LoadVerts(_ FileName: String) {}
+    func DXFLoadVerts(_ FileName: String) -> Int {
+        //load all vertices from a DXF text file
+        
+        //Might not need to count panels since Swift allocates memory differently
+        //var PCount = DXFCountPanels(FileName)
+        TList = []
+        var VIndex = 0
+        var S = GetLine(FileName, "dxf")
+        
+        for s in S {
+            if (s == String(EOF)) {
+                break
+            }
+            if ("3DFACE" == s) {
+                for _ in 0...4 {
+                    var TPoint3d = DXFLoadCoord(S)
+                    S.remove(at: 0)
+                    S.remove(at: 1)
+                    TList[VIndex] = TPoint3d
+                    VIndex += 1
+                }
+            }
+        }
+        VCount = 0
+        
+        var VList: [Point3d] = []
+        
+        for c in 0...VIndex {
+            if (UniqueVert(V: TList[c], List: VList, Range: VCount)) {
+                VList[VCount] = TList[c]
+                
+                VCount += 1
+            }
+        
+        }
+        return 1
+    }
     
-    func LoadPanelData() {}
+    func DXFLoadPanelData() -> Int {
+        //read the panel data from a dxf file
+        //assumes vertices loaded through LoadVerts
+        
+        PList = []
+        var VIndex = 0
+        
+        for PIndex in 0...PCount {
+            DXFLoadPanel(VIndex: VIndex, Index: PIndex)
+        }
+        
+        return 1
+    }
     
-    func LoadPanel(Vindex: Int, Index: Int) {}
+    
+    // MAGIC --> LOADING THE PANELS
+    func DXFLoadPanel(VIndex: Int, Index: Int) -> Int {
+        //load a panel from a DXF text file
+        //VIndex is a let so we set up a var
+        var vi = VIndex
+        
+        for c in 0...4 {
+            PList[Index].VPoint[c] =
+                VList[GetVertexIndex(V: TList[vi], List: VList, Range: VCount)]
+            vi += 1
+        }
+        // PList[Index].InitPosition --> we can init the class through init() function
+        PList[Index].CalcInten()
+        
+        return 1
+    }
+    
+    func LoadDXF(_ FileName: String) {
+        DXFLoadVerts(FileName)
+        DXFLoadPanelData()
+    }
     
     
-    func LoadDXF(_ FileName: String) {}
-    
+    // loading object from binary... we'll do it when we have to
+    func ReadBIN(_ FileName: String) {}
     func WriteBIN(_ FileName: String) {}
     
-    func ReadBIN(_ FileName: String) {}
+    
     
     
     
