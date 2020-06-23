@@ -73,53 +73,49 @@ class PanelObject {
     }
     
     func DXFLoadCoord(_ InFile: [String]) -> Point3d {
-        var S: [String] = []
+        let S = InFile
         var Coord = Point3d()
         
-        S = GetLine(InFile, "dxf")
-        
-        for PCount in 0...3 {
+        while (PCount < 3) {
             
-            if (GetLine(InFile, "dxf") == [String(EOF)] ) {
-                //return default coord
-                break
-            }
             switch(S[0]) {
+            case "EOF":
+                break
             case "10":
-                Coord.local[x] = Float(S[1])
+                Coord.local[x] = Float(S[1])!
                 PCount += 1
             case "11":
-                Coord.local[x] = Float(S[1])
+                Coord.local[x] = Float(S[1])!
                 PCount += 1
             case "12":
-                Coord.local[x] = Float(S[1])
+                Coord.local[x] = Float(S[1])!
                 PCount += 1
             case "13":
-                Coord.local[x] = Float(S[1])
+                Coord.local[x] = Float(S[1])!
                 PCount += 1
             case "20":
-                Coord.local[y] = Float(S[1])
+                Coord.local[y] = Float(S[1])!
                 PCount += 1
             case "21":
-                Coord.local[y] = Float(S[1])
+                Coord.local[y] = Float(S[1])!
                 PCount += 1
             case "22":
-                Coord.local[y] = Float(S[1])
+                Coord.local[y] = Float(S[1])!
                 PCount += 1
             case "23":
-                Coord.local[y] = Float(S[1])
+                Coord.local[y] = Float(S[1])!
                 PCount += 1
             case "30":
-                Coord.local[z] = Float(S[1])
+                Coord.local[z] = Float(S[1])!
                 PCount += 1
             case "31":
-                Coord.local[z] = Float(S[1])
+                Coord.local[z] = Float(S[1])!
                 PCount += 1
             case "32":
-                Coord.local[z] = Float(S[1])
+                Coord.local[z] = Float(S[1])!
                 PCount += 1
             case "33":
-                Coord.local[z] = Float(S[1])
+                Coord.local[z] = Float(S[1])!
                 PCount += 1
             default:
                 print("Hit default in Switch statement on CEPolyObj DXFLoadCoord.")

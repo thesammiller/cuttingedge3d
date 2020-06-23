@@ -94,7 +94,7 @@ extension Panel3d {
             (Normal.direction[y] - VPoint[0].local[y]) * Light.Y +
             (Normal.direction[z] - VPoint[0].local[z]) * Light.Z ) / Mag
             
-        Color = Double(CosA * COLOR_RANGE + COLOR_START)
+        Color = Int(CosA) * Int(COLOR_RANGE + COLOR_START)
     }
         
     func Project() {
@@ -167,8 +167,8 @@ extension Panel3d {
             //calculate 1/z for vector normalization
             OneOverZ = Float(1)/ZClipPoint[Count].world[z]
             
-            SPoint[Count].X = ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(160)
-            SPoint[Count].Y = ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(100)
+            SPoint[Count].X = Int(ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(160))
+            SPoint[Count].Y = Int(ZClipPoint[Count].world[z] * XSCALE * OneOverZ + Float(100))
             
             // this right now multiplies to 1 --> will need to return to logic
             SPoint[Count].Z = OneOverZ * Float((1 * ZSTEP_PREC)) // C++ uses 1 << bit shift
@@ -422,7 +422,7 @@ extension Panel3d {
                 NewRightPos = RightPos + 1
                 if (NewRightPos >= SPCount ) {
                     NewRightPos = 0}
-                RightSeg.Init(SPoint[RightPos], SPoint[NewRightPos])
+                RightSeg = CeilLine(SPoint[RightPos], SPoint[NewRightPos])
                 RightPos = NewRightPos
                 EdgeCount -= 1
                 //perform object precision clip on top edge
@@ -439,7 +439,7 @@ extension Panel3d {
                 if (NewLeftPos < 0) {
                     NewLeftPos = (SPCount - 1 )
                 }
-                LeftSeg.Init(SPoint[LeftPos], SPoint[NewLeftPos])
+                LeftSeg = CeilLine(SPoint[LeftPos], SPoint[NewLeftPos])
                 LeftPos = NewLeftPos
                 EdgeCount -= 1
                 // perform object precision clip if neccessary

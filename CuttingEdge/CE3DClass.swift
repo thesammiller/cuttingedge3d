@@ -38,9 +38,10 @@ let YSCALE = -120
 
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
 
-let ZSTEP_PREC = 1
 
 let COLOR_RANGE = 255
 let COLOR_START = 0
+
+let CEIL_FRACT = 0
 
 

@@ -6,43 +6,95 @@
 //  Copyright © 2020 brogrammer. All rights reserved.
 //
 
+let XSTEP_PREC = 10 //used for bitshifting... not sure how that will work here
+let ZSTEP_PREC = 26
+
 class CeilLine {
+    var X1, X2, Y1, Y2: Int
+    var X, StepX, StepZ, Z: Int
+    var EdgeHeight, Y: Int
     
-    init () {}
-    
-    func Init(_ p1: Point2d, _ p2: Point2d) -> CeilLine {
-        print("LineTypes->CeilLine->Init not implemented. Dummy result. ")
-        return CeilLine()
+    init (P1: Point2d, P2: Point2d) {
+        
+        var FWidth, DeltaZ, Z1, Z2: Int
+        
+        X1 = P1.X; X2 = P2.X
+        Y1 = P1.Y; Y2 = P2.Y
+        Z1 = P1.Z; Z2 = P2.Z
+        
+        EdgeHeight = ( Y2 - Y1 )
+        FWidth = (X2-X1)
+        DeltaZ = (Z2-Z1)
+        
+        X = X1 + CEIL_FRACT
+        Y = Y1
+        Z = Z1 //+ ZTrans -- What is ZTrans?
+        
+        if (EdgeHeight > 0) {
+            StepX = FWidth / EdgeHeight
+            StepZ = DeltaZ / EdgeHeight
+        } else {
+            StepX = 0
+            StepZ = 0
+        }
         
     }
     
+    func Step() {
+        X += StepX
+        Y += 1
+        Z += StepZ
+        EdgeHeight -= 1
+    }
+    
+    func Step(Amount: Int) {
+        X += (StepX * Amount)
+        Y += (Amount)
+        Z += (StepZ * Amount)
+        EdgeHeight -= (Amount)
+    }
+    
+    static func + (left: CeilLine, right: Int) -> Point2d {
+        var Temp = Point2d()
+        Temp.X = left.X  + (left.StepX * right)
+        Temp.Y = left.Y + (right)
+        Temp.Z = left.Z + (left.StepZ + right)
+        return Temp
+    }
+    
     func Height() -> Int {
-        print("LineTypes->CeilLine->Height not implemented. Dummy result. ")
-        return 0
+        return EdgeHeight
     }
     
     func GetY() -> Int {
-        print("LineTypes->CeilLine->GetY not implemented. Dummy result. ")
-        return 0
+        return Y
     }
     
     func GetX() -> Int {
-        print("LineTypes->CeilLine->GetX not implemented. Dummy result. ")
-        return 0
+        return X
     }
     
     func GetZ() -> Int {
-        print("LineTypes->CeilLine->GetZ not implemented. Dummy result. ")
-        return 0
+        return Z
     }
     
-    func ClipTop(_ f: Int) -> Int {
-        print("LineTypes->CeilLine->ClipTop not implemented. Dummy result. ")
-        return 0
+    func ClipTop(_ Top: Int) {
+        var SlopeX: Float
+        var Step, h: Int
+        
+        h = Y2 - Y1
+        
+        if (Y<Top) {
+            if (h > 0) {
+            Step = Top - Y
+            SlopeX = Float(X2-X1) / Float(h)
+            X = X1 + Int(SlopeX) * Step + CEIL_FRACT
+            Y = Top
+            Z += StepZ * Step
+            EdgeHeight -= Step
+            }
+        }
     }
-    
-    
-    
 }
 
 
