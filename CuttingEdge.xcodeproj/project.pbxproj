@@ -77,8 +77,6 @@
 			children = (
 				4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */,
 				4CE6963924A00B70008CDD0F /* APLViewController.swift */,
-				4CE6964724A00D1C008CDD0F /* MTLRenderer.swift */,
-				4CE6965724A07228008CDD0F /* MTLShaders.metal */,
 				4CE6965324A051F5008CDD0F /* CE3DClass.swift */,
 				4C9F05F324A162DD00E529D1 /* CELightP.swift */,
 				4C9F05F124A0F42500E529D1 /* CELineType.swift */,
@@ -88,6 +86,8 @@
 				4CE6964924A012DC008CDD0F /* CEPoint3d.swift */,
 				4C9F05F524A166C000E529D1 /* CEPolyObj.swift */,
 				4CE6964D24A03109008CDD0F /* CEVector3d.swift */,
+				4CE6964724A00D1C008CDD0F /* MTLRenderer.swift */,
+				4CE6965724A07228008CDD0F /* MTLShaders.metal */,
 				4CE6963B24A00B71008CDD0F /* Assets.xcassets */,
 				4CE6963D24A00B71008CDD0F /* Main.storyboard */,
 				4CE6964024A00B71008CDD0F /* Info.plist */,

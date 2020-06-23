@@ -14,6 +14,6 @@ class Matrix3d {
         
     }
     
-    func Transform(_ V: Vector) {}
+    func Transform(_ V: Point3d) {}
     
 }

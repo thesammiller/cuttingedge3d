@@ -32,9 +32,8 @@ class Panel3d {
         print("Panel3d -> MTLHasVert not implemented.")
         return false
     }
+    
 }
-
-class PanelObject: Panel3d { }
 
 extension Panel3d {
     
@@ -275,7 +274,7 @@ extension Panel3d {
     }
     
     
-    func CalcVisible2D() -> Int {
+    func CalcVisible2d() -> Int {
         // perform 2d culling
         var XMinInVis: Int = 0
         var XMaxInVis: Int = 0
