@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import MetalKit
 
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
 let COLOR_RANGE = 255
 let COLOR_START = 0
 let DEGREECOUNT = 1024
+
+
 
 //********************
 // helpers for the indexing of functions
@@ -23,6 +26,15 @@ let z = 2
 let LIGHTX: Float = 1000
 let LIGHTY: Float = 100
 let LIGHTZ: Float = 4
+
+let EMPTYVECTOR = simd_make_float4(0)
+let EMPTYXVECTOR = simd_make_float4(1, 0, 0, 0)
+let EMPTYYVECTOR = simd_make_float4(0, 1, 0, 0)
+let EMPTYZVECTOR = simd_make_float4(0, 0, 1, 0)
+let BLANK_VECTOR = simd_make_float4(0, 0, 0, 1)
+
+let IDENTITY_MATRIX = float4x4(EMPTYXVECTOR, EMPTYYVECTOR, EMPTYZVECTOR, BLANK_VECTOR)
+let EMPTY_MATRIX = float4x4(EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR)
 
 //************************
 //Cutting Edge Constants

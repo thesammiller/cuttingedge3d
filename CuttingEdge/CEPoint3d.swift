@@ -10,7 +10,7 @@
 
 import MetalKit
 
-let defaultValue = simd_make_float4(0)
+
 
 class Point3d {
     
@@ -18,7 +18,7 @@ class Point3d {
     var world: simd_float4
     
     
-    init(_ local: simd_float4=defaultValue, world: simd_float4=defaultValue) {
+    init(_ local: simd_float4=EMPTYVECTOR, world: simd_float4=EMPTYVECTOR) {
         self.local = local
         self.world = world
     }
