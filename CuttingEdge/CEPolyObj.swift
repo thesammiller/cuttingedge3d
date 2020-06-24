@@ -47,9 +47,17 @@ public class PanelObject {
     
     func Transform(_ M: Matrix3d) {
         //translates/rotates entire vertex list
+        var TList: [Point3d] = []
+        
         for v in VList {
-            M.Transform(v)
+            print(v)
+            var w = M.Transform(v)
+            print(w)
+            TList.append(w)
+            
         }
+        VList = TList
+        print(VList)
         for p in PList {
             p.Update(M: M)
         }
@@ -57,13 +65,24 @@ public class PanelObject {
     
     func Display(_ M: Matrix3d)  -> [simd_float3]// a display function
     {
-        Transform(M)
+        self.Transform(M)
+        
         var data: [simd_float3] = []
         
         for p in PList {
+            for v in p.VPoint {
+                VList.append(v)
+            }
+        }
+        
+        
+        for p in PList {
             if p.Invis == 0 {
+                //is panel object visible?
                 if p.CalcVisible3d() == 1 {
+                    print("CalcVisible")
                     p.Project()
+                    print("Project")
                     
                     if p.CalcVisible2d() == 1 {
                         data.append(p.Display())
@@ -84,12 +103,10 @@ extension PanelObject {
         var po = PanelObject()
         
         //Load the DXF File into a String Array
-        var DXFLines = DXFLoadFile(FileName)
+        let DXFLines = DXFLoadFile(FileName)
         
         //load list of panels
         po.PList = DXFLoadFaces(DXFLines)
-        
-        print(po.PList)
         
         return po
     }
@@ -101,11 +118,10 @@ extension PanelObject {
     func DXFLoadFaces(_ Lines: [String]) -> [Panel3d] {
         var panelList: [Panel3d] = []
         var tempPoints: [Point3d]
-        var tempPanel = Panel3d()
+        let tempPanel = Panel3d()
         
         //Split Faces into array of string arrays (each string array is a 3d Face (4 points) )
-        var SplitFaces = DXFSplitFaces(Lines)
-        print("here")
+        let SplitFaces = DXFSplitFaces(Lines)
         
         // for each face
         for s in SplitFaces {
@@ -117,6 +133,7 @@ extension PanelObject {
             else { tempPoints = [] }
             if tempPoints.isEmpty {continue}
             
+            //print(tempPoints)
             tempPanel.VPoint = tempPoints
             
             //calculate data for the new panel
@@ -134,11 +151,11 @@ extension PanelObject {
     func DXFLoadPoints(_ Lines: [String]) -> [Point3d] {
         var Points: [Point3d] = []
         
-        for _ in 0...4 {
+        for _ in 0...3 {
             Points.append(Point3d())
         }
         
-        print(Lines.count)
+        //print(Lines.count)
         
         // some magic for the DXF files
         let XOffset = 7
@@ -160,11 +177,9 @@ extension PanelObject {
             if Float(Lines[ZValue]) != nil {
                 Points[c].local[z] = Float(Lines[ZValue])!
             } else {Points[c].local[z] = 0.0}
-        
-        }
             
-        for p in Points {
-            print(p.local)
+            Points[c].world = simd_make_float4(1)
+        
         }
         //return the points of the panel!
         return Points
@@ -185,7 +200,7 @@ extension PanelObject {
             
             // break at end of file
             if tempLine == "EOF" {
-                print("End of file!")
+                //print("End of file!")
                 break
             }
             // if we encounter a 3dface
@@ -210,7 +225,7 @@ extension PanelObject {
             tFace = []
             lineCount += 1
         }
-        print(tempFaces)
+        //print(tempFaces)
         return tempFaces
     }//for loop end
         

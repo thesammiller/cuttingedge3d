@@ -176,12 +176,15 @@ extension Point3d: Equatable {
 }
 
 func UniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
+    var c = 0
     if List == [] {
         return false }
-    for count in 0...Range {
-        //if it's not unique (we find a match), return false
-        if V == List[ count ] {
-            return false
+    for count in List {
+        if c < Range {
+            //if it's not unique (we find a match), return false
+            if V == count {
+                return false
+            }
         }
     }
     return true

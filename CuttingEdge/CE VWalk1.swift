@@ -41,16 +41,17 @@ func UpdatePos(V: CEView) {
     }
 }
 
-public func CreateWorld(World: PanelObject, M: Matrix3d, V: CEView)  {
-    var World = World
+public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
+    var World = W
+    var Matrix = M
     
-    var M = M
     ZTrans = 0
     
-    VertexData.append(contentsOf: World.Display(M))
+    VertexData.append(contentsOf: World.Display(Matrix))
+    
     print("First world displayed.")
     
-    
+    print(VertexData)
 }
 
 public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {

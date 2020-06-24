@@ -152,7 +152,9 @@ public class Matrix3d {
     //function to transform the vertex using the master matrix
     func Transform(_ V: Point3d) -> Point3d {
         var p: Point3d = V
-        p.world = Matrix * V.local
+        
+        p.world = self.Matrix * V.local
+        print(p.world)
         return p
     }
     

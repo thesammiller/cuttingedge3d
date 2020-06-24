@@ -134,7 +134,7 @@ extension Panel3d {
     }
         
     func Project() {
-        SPCount = 4
+        SPCount = 3
         var OutCount: Int = 0
         var OneOverZ: Float
         var ZClipPoint: [Point3d] = []
@@ -148,8 +148,10 @@ extension Panel3d {
                 if (VPoint[EndI].world[z] >= MINZ) {
                     //entirely inside front view volume
                     //output an unchanged vertex
-                    ZClipPoint[OutCount].world = VPoint[EndI].world
-                        
+                    var newPoint = Point3d()
+                    newPoint.world = VPoint[EndI].world
+                    ZClipPoint.append(newPoint)
+                    
                     OutCount += 1
                 } else {
                     //SPoint is leaving view volume
@@ -197,14 +199,17 @@ extension Panel3d {
         SPCount = OutCount
         
         //Project panel points
-        for Count in 0...OutCount {
+        for Count in 0...OutCount-1 {
             //calculate 1/z for vector normalization
             OneOverZ = Float(1)/ZClipPoint[Count].world[z]
             
             var zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
             
-            SPoint[Count].X = Int(zclip) + 160
-            SPoint[Count].Y = Int(zclip) + 100
+            var newPoint = Point2d()
+            newPoint.X = Int(zclip) + 160
+            newPoint.Y = Int(zclip) + 100
+            SPoint.append(newPoint)
+            
             
             print("Hard coded data Panel3d -> Spoint.")
             
@@ -216,7 +221,7 @@ extension Panel3d {
         
     }
     
-    func CalcNormal() -> Int {
+    func CalcNormal() {
         var X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, Distance, A, B, C: Float
         var UniqueVerts: [Point3d] = []
         var Range: Int = 0
@@ -225,7 +230,6 @@ extension Panel3d {
             if (Range == 0) {
                 UniqueVerts.append(Count)
                 Range+=1
-                return 0
             } else {
                 if UniqueVert(V: Count, List: UniqueVerts, Range: Range) {
                     UniqueVerts.append(Count)
@@ -259,7 +263,6 @@ extension Panel3d {
         Normal.direction[y] = (B/Distance) + self.VPoint[0].local[y]
         Normal.direction[z] = (C/Distance) + self.VPoint[0].local[z]
         
-        return 1
     }
     
     func CalcBFace() -> Int {
@@ -289,15 +292,17 @@ extension Panel3d {
         //perform 3d culling
         
         //assume panel is visible
-        var Visible: Int
+        var Visible: Int = 1
         
         Visible = CalcBFace()
         
         //If Panel still visible perform extent test
         //is there a better way to bool an int in swift? WTF is this language.
         if (Visible == 1) {
+            print("Checking extents...")
             Visible = CheckExtents()
         }
+        print("Visible \(Visible)")
         return Visible
     }
     
@@ -335,24 +340,24 @@ extension Panel3d {
             Invis = 4
             return Visible
         }
-        for N in 0...SPCount {
-            if (SPoint[N].X < MINX) {
+        for p in SPoint {
+            if (p.X < MINX) {
                 XMinInVis += 1
             }
             else {
-                if (SPoint[N].X > MAXX) {
+                if (p.X > MAXX) {
                     XMaxInVis += 1
                 }
             }
-            if (SPoint[N].Y < MINY) {
+            if (p.Y < MINY) {
                 YMinInVis += 1
             }
-            else if (SPoint[N].Y > MAXY) {
+            else if (p.Y > MAXY) {
                 YMaxInVis += 1
             }
         
-            AveX += Float(SPoint[N].X)
-            AveY += Float(SPoint[N].Y)
+            AveX += Float(p.X)
+            AveY += Float(p.Y)
         }
         if (XMinInVis >= SPCount) {
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
@@ -387,21 +392,29 @@ extension Panel3d {
     }
     
     func CheckExtents() -> Int {
+        
         var Visible: Int = 0
         var MinZ: Float
         
-        for Count in 0...4 {
-            if (VPoint[Count].world[z] > MINZ) {
+        // PROBLEM HERE IS THAT COUNT.WORLD[Z} is ALWAYS ZERO
+        
+        for Count in VPoint {
+            
+            print(Count.world[z])
+            
+            if (Count.world[z] > MINZ) {
+                print("Set visible")
                 Visible = 1
                 Invis = 0
                 break
             }
         }
+        
         if (Visible == 1) {
             MinZ = VPoint[0].world[z]
-            for Count in 0...4 {
-                if(VPoint[Count].world[z] < MinZ) {
-                    MinZ = VPoint[Count].world[z]
+            for Count in VPoint {
+                if(Count.world[z] < MinZ) {
+                    MinZ = Count.world[z]
                 }
             }
             if (MinZ > MAXZ)
