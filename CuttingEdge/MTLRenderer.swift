@@ -146,6 +146,8 @@ extension Renderer {
         renderEncoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
+        
+        
     }
 }
 

@@ -78,6 +78,7 @@ public class PanelObject {
                 //is panel object visible?
                 if p.CalcVisible3d() == 1 {
                     p.Project()
+                    //print("Projected displayed...")
                     if p.CalcVisible2d() == 1 {
                         data.append(p.Display())
                         print("Poly displayed")

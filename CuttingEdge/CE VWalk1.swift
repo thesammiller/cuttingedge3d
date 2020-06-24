@@ -11,10 +11,16 @@
 import MetalKit
 import Foundation
 
+var StartTime: clock_t = clock()
+var EndTime: clock_t = clock()
+var FrameCount: Int = 0
+
+
 public class CEView {
     
     var XRot, YRot, ZRot: Int
     var ZPos: Float
+    
     
     init() {
         XRot = 0
@@ -59,17 +65,19 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     print("First world displayed.")
     
     print(VertexData)
+    
+    FrameCount = 0
+    StartTime = clock()
 }
 
 public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
-    var StartTime: clock_t
-    var EndTime: clock_t
-    var FrameCount = 0
+    
+    
     var FramesPerSecond: Float
     var MaxWait: Float
     
     MaxWait = Float(256*256)
-    StartTime = clock()
+    
     
     UpdatePos(V: V)
     M.Translate(0, 0, -V.ZPos)
@@ -99,7 +107,7 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     FramesPerSecond = Float(FrameCount) /
                             Float(EndTime - StartTime)
     print("FPS: \(FramesPerSecond)")
-    FrameCount += 1
+    
 }
 
 

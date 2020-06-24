@@ -57,6 +57,14 @@ public class Panel3d {
     
     var Radius: Float = 0
     
+    var XMinInVis: Int = 0
+    var XMaxInVis: Int = 0
+    var YMinInVis: Int = 0
+    var YMaxInVis: Int = 0
+    var Visible: Int = 1
+    var AveX: Float = 0
+    var AveY: Float = 0
+    
     init () {
     }
     
@@ -133,6 +141,8 @@ extension Panel3d {
         Color = CosA * Float(COLOR_RANGE) + Float(COLOR_START)
     }
         
+    
+    //creates the values for SPoint array --> 2d projections
     func Project() {
         SPCount = 3
         var OutCount: Int = 0
@@ -211,7 +221,7 @@ extension Panel3d {
             SPoint.append(newPoint)
             
             
-            print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
+            //print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
             
             // this right now multiplies to 1 --> will need to return to logic
             SPoint[Count].Z = Int(OneOverZ * Float((1 * ZSTEP_PREC))) // C++ uses 1 << bit shift
@@ -318,19 +328,23 @@ extension Panel3d {
         
     }
     
+    public func ResetCalc2dData() {
+        self.XMinInVis = 0 // < MinX -- left bound
+        self.XMaxInVis = 0 // > MaxX -- right bound
+        self.YMinInVis = 0 // < MinY -- lower bound
+        self.YMaxInVis = 0 // > MaxY -- upper bound
+        
+        self.Visible = 1
+        self.AveX = 0
+        self.AveY = 0
+        
+    }
     
     func CalcVisible2d() -> Int {
         // perform 2d culling
-        var XMinInVis: Int = 0
-        var XMaxInVis: Int = 0
-        var YMinInVis: Int = 0
-        var YMaxInVis: Int = 0
-        var Visible: Int = 1
-        var AveX: Float = 0
-        var AveY: Float = 0
-        Invis = 0
+        ResetCalc2dData()
         
-        // make sure the panel has more than two points
+        // make sure the panel has more than two points --> not just a line!
         if (SPCount < 3) {
             //if not, flag panel as invisible
             Visible = 0
@@ -338,6 +352,7 @@ extension Panel3d {
             Invis = 4
             return Visible
         }
+        
         for p in SPoint {
             if (p.X < MINX) {
                 XMinInVis += 1
@@ -350,38 +365,43 @@ extension Panel3d {
             if (p.Y < MINY) {
                 YMinInVis += 1
             }
-            else if (p.Y > MAXY) {
-                YMaxInVis += 1
+            else {
+                if (p.Y > MAXY) {
+                    YMaxInVis += 1}
             }
         
             AveX += Float(p.X)
             AveY += Float(p.Y)
         }
+        print(AveX, AveY) //too huge
+        
+        //do we have as many invisible x components as points?
         if (XMinInVis >= SPCount) {
+            
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
             AveX /= Float(SPCount)
-            Invis = Int(abs(AveX)/(320 * 26)) // NOT SURE WHAT THESE HARD CODED NUMBERS ARE
-            print("Hard coded numbers 320 * 26 in CalcVisible 2d in Panel3d")
+            Invis = Int(abs(AveX)/(Float(WIDTH)*26))
             Visible = 0
         }
         if (YMinInVis >= SPCount) {
+            debugMsg("YMinInVis")
             AveY /= Float(SPCount)
-            Invis = Int(abs(AveY)/(200*26))
-            print("Hard coded numbers 200*26 in CalcVisible 2d in Panel 3d")
+            Invis = Int(abs(AveY)*(Float(HEIGHT)*26))
+            
             Visible = 0
             }
         if (XMaxInVis >= SPCount) {
             //assume panel will remain invisible for a time
             AveX /= Float(SPCount)
             let num = (AveX-Float(MAXX))
-            let den = Float(320*26)
+            let den = Float(WIDTH*26)
             Invis = Int( num/den )
             Visible = 0
         }
         if (YMaxInVis >= SPCount) {
             AveY/=Float(SPCount)
             let num = (AveY-Float(MAXY))
-            let den = Float(200*26)
+            let den = Float(HEIGHT*26)
             Invis = Int(num/den)
             Visible = 0
         }
@@ -454,7 +474,7 @@ extension Panel3d {
         EdgeCount = SPCount
         
         //Search for lowest Y Coordinate (top of polyon)
-        for N in 0...SPCount {
+        for N in 0...SPCount-1 {
             if (SPoint[N].Y < SPoint[Top].Y) {
                 Top = N
             }
