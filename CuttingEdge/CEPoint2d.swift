@@ -6,12 +6,12 @@
 //  Copyright © 2020 brogrammer. All rights reserved.
 //
 
-struct Point2d: Equatable {
+public struct Point2d: Equatable {
     var X: Int = 0
     var Y: Int = 0
     var Z: Int = 0
     
-    static func == (left: Point2d, right: Point2d) -> Bool {
+    public static func == (left: Point2d, right: Point2d) -> Bool {
         return ( ( left.X == right.X) && (left.Y == right.Y) )
     }
     

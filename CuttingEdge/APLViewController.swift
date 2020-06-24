@@ -8,18 +8,21 @@
 
 import MetalKit
 
+public var MouseX = CGFloat(0.0)
+public var MouseY = CGFloat(0.0)
+public var MouseClick = false
+
+
 class ViewController: NSViewController {
     
     var metalView: MTKView {
         return view as! MTKView}
     
-    var renderer: Renderer?
     
+    public var renderer: Renderer?
     var trackingArea: NSTrackingArea?
-    public var MouseX = CGFloat(0.0)
-    public var MouseY = CGFloat(0.0)
+    
     var cursor: NSCursor?
-    public var click = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +37,6 @@ class ViewController: NSViewController {
                ]
         let trackingArea = NSTrackingArea(rect: NSZeroRect, options: trackingOptions, owner: self, userInfo: nil)
         self.view.addTrackingArea(trackingArea)
-        
         
         // METAL LOOP -- ANY CODE AFTER THIS SHALL NOT PASS
         renderer = Renderer(metalView: metalView)
@@ -76,13 +78,13 @@ extension ViewController {
     }
     
     override func mouseDown(with event: NSEvent) {
-        click = true
+        MouseClick = true
         
         debugMsg("click")
     }
     
     override func mouseUp(with event: NSEvent) {
-        click = false
+        MouseClick = false
     }
     
 }

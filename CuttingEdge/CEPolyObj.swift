@@ -26,7 +26,7 @@ func GetLine(_ InFile: String, _ FileType: String) -> [String] {
     return [String(EOF)]
 }
 
-class PanelObject {
+public class PanelObject {
     var TList: [Point3d] = []
     var VList: [Point3d] = []
     var PList: [Panel3d] = []
@@ -55,9 +55,10 @@ class PanelObject {
         }
     }
     
-    func Display(_ M: Matrix3d, _ Buffer: [Int] )  // a display function
+    func Display(_ M: Matrix3d)  -> [simd_float3]// a display function
     {
         Transform(M)
+        var data: [simd_float3] = []
         
         for p in PList {
             if p.Invis == 0 {
@@ -65,11 +66,13 @@ class PanelObject {
                     p.Project()
                     
                     if p.CalcVisible2d() == 1 {
-                        p.Display(Dest: Buffer)
+                        data.append(p.Display())
+                        print("Poly displayed")
                     }
                 }
             }
         }
+        return data
     }
     
     func DXFLoadCoord(_ InFile: [String]) -> Point3d {

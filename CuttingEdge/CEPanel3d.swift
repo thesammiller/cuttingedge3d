@@ -44,7 +44,7 @@ func ClipHLine (X1: Int, X2: Int, Z: Int, ZStep: Int ) -> simd_int4 {
     }
 
 
-class Panel3d {
+public class Panel3d {
     
     var VPoint: [Point3d] = []
     var SPoint: [Point2d] = []
@@ -431,7 +431,7 @@ extension Panel3d {
     
     // when do we use the passed in argument?
     // dest is a buffer???????
-    func Display(Dest: [Int]) {
+    func Display() -> simd_float3 {
         var RColor: Float // color of the panel
         var DPtr: Int // pointer to the off-screen buffer (!)
         var ZPtr: Int // Zbuffer ptr
@@ -526,8 +526,22 @@ extension Panel3d {
                     Z = Int(f[2])
                     ZStep = Int(f[3])
                     Width = XEnd - XStart
-                    DPtr = Dest[YIndex + XStart]
+                    
+                    //DPtr = Dest[YIndex + XStart]
+                    //DPtr is assigned the buffer location
+                    //We need to do the opposite -- assign the vertix to the buffer
+                    
+                    //Pass Along the 2D Point ????
+                    
+                    let X = Float(Width)
+                    let Y = Float(Height)
                     ZPtr = ZBuffer[YIndex + XStart]
+                    
+                    
+                    vCount += 1
+                    print("Panel3d-> Display")
+                    
+                    return (simd_make_float3(X, Y, Float(Z)))
                     
                     //loop for width of scan-LINE_MAX
                     while ( Width > 0 ) {
@@ -537,7 +551,7 @@ extension Panel3d {
                             DPtr = (Z >> 18) // bit shift
                         }
                         Z += ZStep
-                        DPtr += 1
+                        //DPtr += 1
                         ZPtr += 1
                     }
                 }
@@ -548,8 +562,9 @@ extension Panel3d {
             }
             
         }
-            
+        return simd_make_float3(0)
     }
+    
     
 }
 

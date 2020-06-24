@@ -12,7 +12,7 @@ import MetalKit
 
 
 
-class Point3d {
+public class Point3d {
     
     var local: simd_float4
     var world: simd_float4
@@ -34,7 +34,7 @@ extension Point3d: Equatable {
         return left.local != right.local
     }
     
-    static func == (left: Point3d, right: Point3d) -> Bool {
+    public static func == (left: Point3d, right: Point3d) -> Bool {
         return left.local == right.local
     }
     

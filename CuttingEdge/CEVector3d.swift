@@ -8,7 +8,7 @@
 
 import MetalKit
 
-struct Vector {
+public struct Vector {
     var transformed: simd_float4 = simd_make_float4(0) // Tx, Ty,Tz 
     var direction: simd_float4 = simd_make_float4(0) // x, y, z vector
 }

@@ -9,7 +9,7 @@
 import MetalKit
 import Foundation
 
-class Matrix3d {
+public class Matrix3d {
     
     var Matrix: float4x4
     var RMatrix: float4x4
@@ -57,7 +57,7 @@ class Matrix3d {
     
     //func MTLRotate --> COULD WE KEEP LUT in the GPU???
     
-    func Rotate(Xa: Int, Ya: Int, Za: Int) {
+    func Rotate(_ Xa: Int, _ Ya: Int, _ Za: Int) {
         Xr = Xa
         Yr = Ya
         Zr = Za
@@ -112,7 +112,7 @@ class Matrix3d {
     }
     
     //p. 233
-    func Translate(Xt: Float, Yt: Float, Zt: Float) {
+    func Translate(_ Xt: Float, _ Yt: Float, _ Zt: Float) {
         //create initialized matrix
         var T = Matrix3d()
         
@@ -129,7 +129,7 @@ class Matrix3d {
         
     }
     
-    func Scale(Xs: Float, Ys: Float, Zs: Float) {
+    func Scale(_ Xs: Float, _ Ys: Float, _ Zs: Float) {
         var S = Matrix3d()
         
         S.Matrix[0][0] = Xs
