@@ -50,6 +50,9 @@ let EMPTY_MATRIX = float4x4(EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR)
 //Cutting Edge Constants
 //************************
 
+
+// THINK TWICE BEFORE ALTERING MAGIC NUMBERS... 
+
 let PI = 3.141592654
 let MINX = 10
 let MAXX = 309

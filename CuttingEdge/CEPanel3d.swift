@@ -343,7 +343,7 @@ extension Panel3d {
     func CalcVisible2d() -> Int {
         // perform 2d culling
         ResetCalc2dData()
-        
+        /*
         // make sure the panel has more than two points --> not just a line!
         if (SPCount < 3) {
             //if not, flag panel as invisible
@@ -373,11 +373,10 @@ extension Panel3d {
             AveX += Float(p.X)
             AveY += Float(p.Y)
         }
-        print(AveX, AveY) //too huge
         
         //do we have as many invisible x components as points?
         if (XMinInVis >= SPCount) {
-            
+            print("XMinInVis")
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
             AveX /= Float(SPCount)
             Invis = Int(abs(AveX)/(Float(WIDTH)*26))
@@ -391,6 +390,7 @@ extension Panel3d {
             Visible = 0
             }
         if (XMaxInVis >= SPCount) {
+            print("XMaxInVis")
             //assume panel will remain invisible for a time
             AveX /= Float(SPCount)
             let num = (AveX-Float(MAXX))
@@ -404,7 +404,8 @@ extension Panel3d {
             let den = Float(HEIGHT*26)
             Invis = Int(num/den)
             Visible = 0
-        }
+            print(AveY, SPCount, num, den, Invis)
+        }*/
 
         return Visible
     }
@@ -483,7 +484,7 @@ extension Panel3d {
         LeftPos = Top
         
         //Calculate the index to the buffer
-        YIndex = Int(SPoint[Top].Y * 320)
+        YIndex = Int(SPoint[Top].Y * WIDTH)
         print("Hard coded 320 in Panel3d -> Display")
         
         //loop for all Polygon edges
@@ -500,7 +501,7 @@ extension Panel3d {
                 //(if necessary)
                 if (RightSeg.GetY() < MINY) {
                     RightSeg.ClipTop(MINY)
-                    YIndex = MINY * 320
+                    YIndex = MINY * WIDTH
                     print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
                 }
             }
@@ -516,7 +517,7 @@ extension Panel3d {
                 // perform object precision clip if neccessary
                 if (LeftSeg.GetY() < MINY) {
                     LeftSeg.ClipTop(MINY)
-                    YIndex = MINY * 320
+                    YIndex = MINY * WIDTH
                 }
             }
             
@@ -590,6 +591,8 @@ extension Panel3d {
             }
             
         }
+        
+        //if 2d point was not created, return an empty float
         return simd_make_float3(0)
     }
     
