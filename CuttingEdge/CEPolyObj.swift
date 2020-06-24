@@ -16,7 +16,7 @@ func GetFile(_ InFile: String, _ FileType: String) -> [String] {
         do {
             let data = try String(contentsOfFile: path, encoding: .utf8)
             var myStrings = data.components(separatedBy: .newlines)
-            // join... 
+            // join...
             return myStrings
         } catch {
             print(error)
@@ -105,9 +105,11 @@ extension PanelObject {
         
         //Split Faces into array of string arrays (each string array is a 3d Face (4 points) )
         var SplitFaces = DXFSplitFaces(Lines)
+        print("here")
         
         // for each face
         for s in SplitFaces {
+            
             
             //split the face into an array of string arrays
             if s.count > 1 {
@@ -136,16 +138,18 @@ extension PanelObject {
             Points.append(Point3d())
         }
         
+        print(Lines.count)
+        
         for c in 0...3 {
             
-            if Float(Lines[8+c*4]) != nil {
-                Points[c].local[x] = Float(Lines[8+c*4])!
+            if Float(Lines[7+c*12]) != nil {
+                Points[c].local[x] = Float(Lines[7+c*12])!
             } else {Points[c].local[x] = 0.0}
-            if Float(Lines[12+c*4]) != nil {
-                Points[c].local[y] = Float(Lines[12+c*4])!
+            if Float(Lines[11+c*12]) != nil {
+                Points[c].local[y] = Float(Lines[11+c*12])!
             } else {Points[c].local[y] = 0.0}
-            if Float(Lines[16+c*4]) != nil {
-                Points[c].local[z] = Float(Lines[16+c*4])!
+            if Float(Lines[15+c*12]) != nil {
+                Points[c].local[z] = Float(Lines[15+c*12])!
             } else {Points[c].local[z] = 0.0}
         
         }
@@ -165,11 +169,6 @@ extension PanelObject {
         var lineCount = 0
         var tl = ""
         
-        var modifier = 1
-        
-        
-        
-        
         for l in Lines {
             
             //stop when we have gone far enough
@@ -185,26 +184,28 @@ extension PanelObject {
                 //print("Found a face...")
                 
                 // can discard the first 6 items
-                for c in 0...32 {
-                    tl = Lines[lineCount+c+1]
-                    //if we are at the end of the face, break
-                    if tl == "3DFACE" {break}
-                    
-                    //otherwise, add this string to our tempface
-                    tFace.append(Lines[lineCount+c])
-                }
-                if tFace[0].starts(with: "3DFACE") {
-                    tempFaces.append(tFace)
-                }
+                if lineCount+56 < Lines.count {
+                    for c in 0...56 {
+                        tl = Lines[lineCount+c+1]
+                        //if we are at the end of the face, break
+                        if tl == "3DFACE" {break}
+                        //var splitLine = tl.split(separator: " ")
+                        //otherwise, add this string to our tempface
+                        tFace.append(Lines[lineCount+c+1])
+                    } // inner for
+                } // if
                 
-                tFace = []
-                
+                tempFaces.append(tFace)
             }
+                
+            tFace = []
             lineCount += 1
-        }//for loop end
-        
-        // this is our array of string arrays [each inner array is a 3dface]
+        }
+        print(tempFaces)
         return tempFaces
-    }
-    
+    }//for loop end
+        
+
+        
 }
+    
