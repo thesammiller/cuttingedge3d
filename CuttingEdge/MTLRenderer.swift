@@ -72,6 +72,7 @@ class Renderer: NSObject, MTKViewDelegate {
 
         V = CEView()
         W = PanelObject()
+        W.DXFLoadModel("TEST")
 
         CreateWorld(World: W, M: M, V: V)
         

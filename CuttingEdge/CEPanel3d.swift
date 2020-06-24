@@ -58,12 +58,10 @@ public class Panel3d {
     var Radius: Float = 0
     
     init () {
-        CalcNormal()
-        CalcRadius()
     }
     
     func HasVert(P: Point3d) -> Bool {
-        return VPoint.contains(P)
+        return self.VPoint.contains(P)
     }
     
     func MTLHasVert(P: Point3d) -> Bool {
@@ -81,32 +79,34 @@ extension Panel3d {
         var TempPoint: [Point3d] = []
         var Center: Point3d = Point3d()
         var Distance: [Float] = []
-        var Dist: Float
+        var Dist = Float(0)
         
-        for Count in 0...4 {
-            TempPoint[Count] = VPoint[Count]
+        for Count in VPoint {
+            TempPoint.append(Count)
         }
         
-        for Count in 0...4 {
-            Center += TempPoint [Count]
+        for Count in TempPoint {
+            Center += Count
         }
         
         Center /= Float(4.0)
         
-        for Count in 0...4 {
-            TempPoint[Count] -= Center
+        var tPoint: [Point3d] = []
+        
+        for Count in TempPoint {
+            tPoint.append(Count - Center)
         }
         
-        for Count in 0...4 {
-            Dist = TempPoint[Count].Mag()
-            Distance[Count] = Dist
+        for Count in tPoint {
+            Dist = Count.Mag()
+            Distance.append(Dist)
         }
         
-        Dist = Distance[0]
+        for d in Distance {Dist = d; break}
         
-        for Count in 0...4 {
-            if Distance[Count] > Dist {
-                Dist = Distance[Count]
+        for Count in Distance {
+            if Count > Dist {
+                Dist = Count
             }
         }
         
@@ -216,20 +216,19 @@ extension Panel3d {
         
     }
     
-    func CalcNormal() {
+    func CalcNormal() -> Int {
         var X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, Distance, A, B, C: Float
         var UniqueVerts: [Point3d] = []
-        var TVert: Point3d
         var Range: Int = 0
         
-        for Count in 0...4 {
-            TVert = VPoint[Count]
+        for Count in VPoint {
             if (Range == 0) {
-                UniqueVerts[Range] = TVert
+                UniqueVerts.append(Count)
                 Range+=1
-            }else {
-                if UniqueVert(V: TVert, List: UniqueVerts, Range: Range) {
-                    UniqueVerts[Range] = TVert
+                return 0
+            } else {
+                if UniqueVert(V: Count, List: UniqueVerts, Range: Range) {
+                    UniqueVerts.append(Count)
                     Range += 1
                 }
             }
@@ -256,9 +255,11 @@ extension Panel3d {
         Distance = sqrt(A*A + B*B + C*C)
         
         //Normalize the normal to 1 and create a point
-        Normal.direction[x] = (A/Distance) + VPoint[0].local[x]
-        Normal.direction[y] = (B/Distance) + VPoint[0].local[y]
-        Normal.direction[z] = (C/Distance) + VPoint[0].local[z]
+        Normal.direction[x] = (A/Distance) + self.VPoint[0].local[x]
+        Normal.direction[y] = (B/Distance) + self.VPoint[0].local[y]
+        Normal.direction[z] = (C/Distance) + self.VPoint[0].local[z]
+        
+        return 1
     }
     
     func CalcBFace() -> Int {
@@ -267,7 +268,7 @@ extension Panel3d {
         var Invis: Int = 0
         var Direction: Float
         
-        var V: Point3d = VPoint[0]
+        var V: Point3d = self.VPoint[0]
         
         Direction = V.world[x] * (Normal.transformed[x] - VPoint[0].world[x]) +
         V.world[y] * (Normal.transformed[y] - VPoint[0].world[y]) +

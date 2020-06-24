@@ -176,8 +176,10 @@ extension Point3d: Equatable {
 }
 
 func UniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
+    if List == [] {
+        return false }
     for count in 0...Range {
-        //if it's not unique, return false
+        //if it's not unique (we find a match), return false
         if V == List[ count ] {
             return false
         }
@@ -192,9 +194,11 @@ func MTLUniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
 }
 
 func GetVertexIndex (V: Point3d, List: [Point3d], Range: Int) -> Int {
-    for count in 0...Range {
-        if V == List [ count ] {
-            return count
+    if Range > 0 {
+        for count in 0...Range {
+            if V == List [ count ] {
+                return count
+            }
         }
     }
     return 0
