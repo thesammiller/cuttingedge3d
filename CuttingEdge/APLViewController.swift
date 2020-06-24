@@ -10,10 +10,9 @@ import MetalKit
 
 class ViewController: NSViewController {
     
-    /*var metalView: MTKView {
-        return view as! MTKView
-    }*/
-    public var metalView: MTKView!
+    var metalView: MTKView {
+        return view as! MTKView}
+    
     var renderer: Renderer?
     
     var trackingArea: NSTrackingArea?
@@ -25,8 +24,7 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        metalView = MTKView(frame: view.frame)
-        view = metalView
+        // Mouse Functionality
         
         let trackingOptions: NSTrackingArea.Options = [
                    .activeAlways,
@@ -34,12 +32,11 @@ class ViewController: NSViewController {
                    .mouseMoved,
                    .inVisibleRect
                ]
-        
         let trackingArea = NSTrackingArea(rect: NSZeroRect, options: trackingOptions, owner: self, userInfo: nil)
-        
-        
         self.view.addTrackingArea(trackingArea)
         
+        
+        // LOOP
         renderer = Renderer(metalView: metalView)
         
     }
