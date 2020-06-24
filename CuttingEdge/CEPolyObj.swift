@@ -140,16 +140,25 @@ extension PanelObject {
         
         print(Lines.count)
         
+        // some magic for the DXF files
+        let XOffset = 7
+        let YOffset = 11
+        let ZOffset = 15
+        let DXFStride = 12
+        
         for c in 0...3 {
+            let XValue = c*DXFStride+XOffset
+            let YValue = c*DXFStride+YOffset
+            let ZValue = c*DXFStride+ZOffset
             
-            if Float(Lines[7+c*12]) != nil {
-                Points[c].local[x] = Float(Lines[7+c*12])!
+            if Float(Lines[XValue]) != nil {
+                Points[c].local[x] = Float(Lines[XValue])!
             } else {Points[c].local[x] = 0.0}
-            if Float(Lines[11+c*12]) != nil {
-                Points[c].local[y] = Float(Lines[11+c*12])!
+            if Float(Lines[YValue]) != nil {
+                Points[c].local[y] = Float(Lines[YValue])!
             } else {Points[c].local[y] = 0.0}
-            if Float(Lines[15+c*12]) != nil {
-                Points[c].local[z] = Float(Lines[15+c*12])!
+            if Float(Lines[ZValue]) != nil {
+                Points[c].local[z] = Float(Lines[ZValue])!
             } else {Points[c].local[z] = 0.0}
         
         }
