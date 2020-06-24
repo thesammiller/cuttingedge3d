@@ -211,7 +211,7 @@ extension Panel3d {
             SPoint.append(newPoint)
             
             
-            print("Hard coded data Panel3d -> Spoint.")
+            print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
             
             // this right now multiplies to 1 --> will need to return to logic
             SPoint[Count].Z = Int(OneOverZ * Float((1 * ZSTEP_PREC))) // C++ uses 1 << bit shift
@@ -299,10 +299,8 @@ extension Panel3d {
         //If Panel still visible perform extent test
         //is there a better way to bool an int in swift? WTF is this language.
         if (Visible == 1) {
-            print("Checking extents...")
             Visible = CheckExtents()
         }
-        print("Visible \(Visible)")
         return Visible
     }
     
@@ -399,11 +397,7 @@ extension Panel3d {
         // PROBLEM HERE IS THAT COUNT.WORLD[Z} is ALWAYS ZERO
         
         for Count in VPoint {
-            
-            print(Count.world[z])
-            
             if (Count.world[z] > MINZ) {
-                print("Set visible")
                 Visible = 1
                 Invis = 0
                 break

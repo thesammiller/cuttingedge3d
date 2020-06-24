@@ -65,8 +65,8 @@ public class Matrix3d {
         
         RMatrix = IDENTITY_MATRIX
         
-        print("Rotating Matrices... Looking up Cos/Sin manually.")
-        print("Consider using Look Up Tables.")
+        print("Rotating Matrices...")
+        print("Checking Cos/Sin manually (TODO: LUT).")
         
         //initialize Z rotation first
         let fZa = Float(Za)
@@ -152,9 +152,7 @@ public class Matrix3d {
     //function to transform the vertex using the master matrix
     func Transform(_ V: Point3d) -> Point3d {
         var p: Point3d = V
-        
         p.world = self.Matrix * V.local
-        print(p.world)
         return p
     }
     

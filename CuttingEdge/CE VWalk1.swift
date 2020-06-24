@@ -47,6 +47,13 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     
     ZTrans = 0
     
+    UpdatePos(V: V)
+    
+    Matrix.Translate(0, 0, -V.ZPos)
+    Matrix.Rotate(-V.XRot, V.YRot, -V.ZRot)
+    V.Clear()
+    
+    //2D Points
     VertexData.append(contentsOf: World.Display(Matrix))
     
     print("First world displayed.")
@@ -77,6 +84,7 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
 
     VertexData.append(contentsOf: W.Display(M))
     print("World displayed.")
+    print(VertexData)
         
     /*vertexBuffer = device.makeBuffer(bytes: VideoBuffer,
                                                   length: MemoryLayout<float4x4>.size,
@@ -88,9 +96,10 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
         
         
     EndTime = clock()
-    FramesPerSecond = Float(FrameCount * Int(CLK_TCK)) /
+    FramesPerSecond = Float(FrameCount) /
                             Float(EndTime - StartTime)
     print("FPS: \(FramesPerSecond)")
+    FrameCount += 1
 }
 
 

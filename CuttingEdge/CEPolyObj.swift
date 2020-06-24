@@ -50,14 +50,11 @@ public class PanelObject {
         var TList: [Point3d] = []
         
         for v in VList {
-            print(v)
-            var w = M.Transform(v)
-            print(w)
-            TList.append(w)
-            
+            TList.append(M.Transform(v))
         }
+        
         VList = TList
-        print(VList)
+        
         for p in PList {
             p.Update(M: M)
         }
@@ -69,21 +66,18 @@ public class PanelObject {
         
         var data: [simd_float3] = []
         
+        //generate our vector list so we can go through all the vectors in this poly object
         for p in PList {
             for v in p.VPoint {
                 VList.append(v)
             }
         }
         
-        
         for p in PList {
             if p.Invis == 0 {
                 //is panel object visible?
                 if p.CalcVisible3d() == 1 {
-                    print("CalcVisible")
                     p.Project()
-                    print("Project")
-                    
                     if p.CalcVisible2d() == 1 {
                         data.append(p.Display())
                         print("Poly displayed")
@@ -91,6 +85,7 @@ public class PanelObject {
                 }
             }
         }
+        print(data)
         return data
     }
 }
