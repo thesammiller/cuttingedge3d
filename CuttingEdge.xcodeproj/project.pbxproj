@@ -10,6 +10,7 @@
 		4C9F05F224A0F42500E529D1 /* CELineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F124A0F42500E529D1 /* CELineType.swift */; };
 		4C9F05F424A162DD00E529D1 /* CELightP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F324A162DD00E529D1 /* CELightP.swift */; };
 		4C9F05F624A166C000E529D1 /* CEPolyObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F524A166C000E529D1 /* CEPolyObj.swift */; };
+		4CA2235424A2CC150004AE02 /* IOWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA2235324A2CC150004AE02 /* IOWindowController.swift */; };
 		4CE6963824A00B70008CDD0F /* APLAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */; };
 		4CE6963A24A00B70008CDD0F /* APLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6963924A00B70008CDD0F /* APLViewController.swift */; };
 		4CE6963C24A00B71008CDD0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CE6963B24A00B71008CDD0F /* Assets.xcassets */; };
@@ -28,6 +29,7 @@
 		4C9F05F124A0F42500E529D1 /* CELineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CELineType.swift; sourceTree = "<group>"; };
 		4C9F05F324A162DD00E529D1 /* CELightP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CELightP.swift; sourceTree = "<group>"; };
 		4C9F05F524A166C000E529D1 /* CEPolyObj.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEPolyObj.swift; sourceTree = "<group>"; };
+		4CA2235324A2CC150004AE02 /* IOWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOWindowController.swift; sourceTree = "<group>"; };
 		4CE6963424A00B70008CDD0F /* CuttingEdge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CuttingEdge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APLAppDelegate.swift; sourceTree = "<group>"; };
 		4CE6963924A00B70008CDD0F /* APLViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APLViewController.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 			children = (
 				4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */,
 				4CE6963924A00B70008CDD0F /* APLViewController.swift */,
+				4CA2235324A2CC150004AE02 /* IOWindowController.swift */,
 				4CE6965324A051F5008CDD0F /* CE3DClass.swift */,
 				4C9F05F324A162DD00E529D1 /* CELightP.swift */,
 				4C9F05F124A0F42500E529D1 /* CELineType.swift */,
@@ -167,6 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CE6963A24A00B70008CDD0F /* APLViewController.swift in Sources */,
+				4CA2235424A2CC150004AE02 /* IOWindowController.swift in Sources */,
 				4CE6965224A03582008CDD0F /* CEPanel3d.swift in Sources */,
 				4CE6964824A00D1C008CDD0F /* MTLRenderer.swift in Sources */,
 				4C9F05F424A162DD00E529D1 /* CELightP.swift in Sources */,

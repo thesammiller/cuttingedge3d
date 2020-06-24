@@ -34,6 +34,11 @@ class Renderer: NSObject, MTKViewDelegate {
     var indexBuffer: MTLBuffer!
     var pipelineState: MTLRenderPipelineState!
     
+    var trackingArea: NSTrackingArea?
+    
+    
+    //var frame: CGRect
+    
     init(metalView: MTKView) {
         guard
             let device = MTLCreateSystemDefaultDevice(),
@@ -46,6 +51,7 @@ class Renderer: NSObject, MTKViewDelegate {
         Renderer.device = device
         Renderer.commandQueue = commandQueue
         metalView.device = device
+        
         
         //mdlMesh
         // vertexBuffer = mesh.vertexBuffers[0].buffer
@@ -73,6 +79,7 @@ class Renderer: NSObject, MTKViewDelegate {
         
         // create library of metal shaders
         // what is in the metal shader default library?
+        
         
         
     }
@@ -142,4 +149,5 @@ extension Renderer {
         commandBuffer.commit()
     }
 }
+
 
