@@ -9,6 +9,16 @@
 import Foundation
 import MetalKit
 
+
+let DEBUG = true
+let DEBUGMOUSE = false // xy mouse location... it's a lot
+
+public func debugMsg(_ S: String) {
+    if DEBUG {
+        print(S)
+    }
+}
+
 //unimplemented -- FAKE NUMBERS ---> if you see strange behavior...
 let COLOR_RANGE = 255
 let COLOR_START = 0

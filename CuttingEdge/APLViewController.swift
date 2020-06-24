@@ -36,9 +36,8 @@ class ViewController: NSViewController {
         self.view.addTrackingArea(trackingArea)
         
         
-        // LOOP
+        // METAL LOOP -- ANY CODE AFTER THIS SHALL NOT PASS
         renderer = Renderer(metalView: metalView)
-        
     }
 
     override var representedObject: Any? {
@@ -53,19 +52,16 @@ class ViewController: NSViewController {
 extension ViewController {
     
     override func awakeFromNib() {
-        
     }
     
     override func mouseEntered(with event: NSEvent) {
-        print("Mouse entered.")
         NSCursor.hide()
-        
+        debugMsg("Mouse entered.")
     }
     
     override func mouseExited(with event: NSEvent) {
-        print("Mouse exited.")
         NSCursor.unhide()
-        
+        debugMsg("Mouse exited.")
     }
     
     override func mouseMoved(with event: NSEvent) {
@@ -74,12 +70,15 @@ extension ViewController {
         MouseX = location.x
         MouseY = location.y
         
-        print(location)
+        if DEBUGMOUSE {
+            print(location)
+        }
     }
     
     override func mouseDown(with event: NSEvent) {
         click = true
-        print("click")
+        
+        debugMsg("click")
     }
     
     override func mouseUp(with event: NSEvent) {
