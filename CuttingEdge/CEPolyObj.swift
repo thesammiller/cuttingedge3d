@@ -162,10 +162,9 @@ extension PanelObject {
             Points.append(Point3d())
         }
         
-        //print(Lines.count)
         
-        // some magic for the DXF files
-        // NO BUT SERIOUSLY THINK TWICE BEFORE CHANGING MAGIC
+        
+        // some magic for the DXF files spacing --> just for indexing
         let XOffset = 7
         let YOffset = 11
         let ZOffset = 15
@@ -176,14 +175,25 @@ extension PanelObject {
             let YValue = c*DXFStride+YOffset
             let ZValue = c*DXFStride+ZOffset
             
+            
+            //convert the line at index to a float value
+            //and divide to convert from cutting edge space to metal space
+            
             if Float(Lines[XValue]) != nil {
-                Points[c].local[x] = Float(Lines[XValue])!
+                var temp = Float(Lines[XValue])!
+                Points[c].local[x] = temp/1000
             } else {Points[c].local[x] = 0.0}
+            
             if Float(Lines[YValue]) != nil {
-                Points[c].local[y] = Float(Lines[YValue])!
+                var temp = Float(Lines[YValue])!
+                Points[c].local[y]  = temp/1000
             } else {Points[c].local[y] = 0.0}
+            
             if Float(Lines[ZValue]) != nil {
-                Points[c].local[z] = Float(Lines[ZValue])!
+                var temp = Float(Lines[ZValue])!
+                temp = temp/2000
+                Points[c].local[z] = temp
+                
             } else {Points[c].local[z] = 0.0}
             
             Points[c].world = simd_make_float4(1)

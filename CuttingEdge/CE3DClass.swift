@@ -62,8 +62,8 @@ let WIDTH = 320
 let HEIGHT = 200
 let XCENTER = 160
 let YCENTER = 100
-let MINZ = Float(100)
-let MAXZ = Float(10000)
+let MINZ = Float(0)
+let MAXZ = Float(1)
 let XSCALE = 120
 let YSCALE = -120
 
