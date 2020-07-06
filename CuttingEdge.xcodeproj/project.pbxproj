@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C36366F24A41B6F0023C3DD /* TEST2.DXF in Resources */ = {isa = PBXBuildFile; fileRef = 4C36366E24A41B6F0023C3DD /* TEST2.DXF */; };
 		4C9F05F224A0F42500E529D1 /* CELineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F124A0F42500E529D1 /* CELineType.swift */; };
 		4C9F05F424A162DD00E529D1 /* CELightP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F324A162DD00E529D1 /* CELightP.swift */; };
 		4C9F05F624A166C000E529D1 /* CEPolyObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9F05F524A166C000E529D1 /* CEPolyObj.swift */; };
-		4CA2235824A2E2600004AE02 /* CE VWalk1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA2235724A2E2600004AE02 /* CE VWalk1.swift */; };
+		4CA2235824A2E2600004AE02 /* CEWorld1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA2235724A2E2600004AE02 /* CEWorld1.swift */; };
 		4CA2235A24A2FBD10004AE02 /* TEST.DXF in Resources */ = {isa = PBXBuildFile; fileRef = 4CA2235924A2FBD10004AE02 /* TEST.DXF */; };
 		4CE6963824A00B70008CDD0F /* APLAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */; };
 		4CE6963A24A00B70008CDD0F /* APLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6963924A00B70008CDD0F /* APLViewController.swift */; };
@@ -27,10 +28,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4C36366E24A41B6F0023C3DD /* TEST2.DXF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TEST2.DXF; sourceTree = "<group>"; };
 		4C9F05F124A0F42500E529D1 /* CELineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CELineType.swift; sourceTree = "<group>"; };
 		4C9F05F324A162DD00E529D1 /* CELightP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CELightP.swift; sourceTree = "<group>"; };
 		4C9F05F524A166C000E529D1 /* CEPolyObj.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEPolyObj.swift; sourceTree = "<group>"; };
-		4CA2235724A2E2600004AE02 /* CE VWalk1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CE VWalk1.swift"; sourceTree = "<group>"; };
+		4CA2235724A2E2600004AE02 /* CEWorld1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEWorld1.swift; sourceTree = "<group>"; };
 		4CA2235924A2FBD10004AE02 /* TEST.DXF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TEST.DXF; sourceTree = "<group>"; };
 		4CE6963424A00B70008CDD0F /* CuttingEdge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CuttingEdge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CE6963724A00B70008CDD0F /* APLAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APLAppDelegate.swift; sourceTree = "<group>"; };
@@ -90,10 +92,11 @@
 				4CE6964924A012DC008CDD0F /* CEPoint3d.swift */,
 				4C9F05F524A166C000E529D1 /* CEPolyObj.swift */,
 				4CE6964D24A03109008CDD0F /* CEVector3d.swift */,
-				4CA2235724A2E2600004AE02 /* CE VWalk1.swift */,
+				4CA2235724A2E2600004AE02 /* CEWorld1.swift */,
 				4CE6964724A00D1C008CDD0F /* MTLRenderer.swift */,
 				4CE6965724A07228008CDD0F /* MTLShaders.metal */,
 				4CA2235924A2FBD10004AE02 /* TEST.DXF */,
+				4C36366E24A41B6F0023C3DD /* TEST2.DXF */,
 				4CE6963B24A00B71008CDD0F /* Assets.xcassets */,
 				4CE6963D24A00B71008CDD0F /* Main.storyboard */,
 				4CE6964024A00B71008CDD0F /* Info.plist */,
@@ -163,6 +166,7 @@
 				4CE6963C24A00B71008CDD0F /* Assets.xcassets in Resources */,
 				4CA2235A24A2FBD10004AE02 /* TEST.DXF in Resources */,
 				4CE6963F24A00B71008CDD0F /* Main.storyboard in Resources */,
+				4C36366F24A41B6F0023C3DD /* TEST2.DXF in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,7 +178,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CE6963A24A00B70008CDD0F /* APLViewController.swift in Sources */,
-				4CA2235824A2E2600004AE02 /* CE VWalk1.swift in Sources */,
+				4CA2235824A2E2600004AE02 /* CEWorld1.swift in Sources */,
 				4CE6965224A03582008CDD0F /* CEPanel3d.swift in Sources */,
 				4CE6964824A00D1C008CDD0F /* MTLRenderer.swift in Sources */,
 				4C9F05F424A162DD00E529D1 /* CELightP.swift in Sources */,

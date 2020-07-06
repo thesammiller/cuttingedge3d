@@ -216,15 +216,18 @@ extension Panel3d {
             var zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
             
             var newPoint = Point2d()
-            newPoint.X = Int(zclip) + 160
-            newPoint.Y = Int(zclip) + 100
+            newPoint.X = Int(zclip) + (WIDTH/2)
+            newPoint.Y = Int(zclip) + (HEIGHT/2)
             SPoint.append(newPoint)
             
             
             //print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
             
-            // this right now multiplies to 1 --> will need to return to logic
+            // this right now multiplies to 1 --> will need to return to logic --> MOSTLY ZERO!!
             SPoint[Count].Z = Int(OneOverZ * Float((1 * ZSTEP_PREC))) // C++ uses 1 << bit shift
+            
+            //need to learn about the zbuffer for this i think
+            
             
         }
         
@@ -460,7 +463,23 @@ extension Panel3d {
     
     // when do we use the passed in argument?
     // dest is a buffer???????
-    func Display() -> simd_float3 {
+    func Display() -> [simd_float3] {
+        // could this entire function be shortcut by Metal? Yes.
+       
+        var dataDisplay2d: [simd_float3] = []
+        
+        for s in SPoint {
+            dataDisplay2d.append(simd_make_float3(Float(s.X), Float(s.Y), Float(s.Z)))
+        }
+        
+        return dataDisplay2d
+    }
+
+
+}
+        
+///OLD DISPLAY FUNCTION
+        /*
         var RColor: Float // color of the panel
         var DPtr: Int // pointer to the off-screen buffer (!)
         var ZPtr: Int // Zbuffer ptr
@@ -596,7 +615,7 @@ extension Panel3d {
         return simd_make_float3(0)
     }
     
-    
-}
+    */
+
 
         

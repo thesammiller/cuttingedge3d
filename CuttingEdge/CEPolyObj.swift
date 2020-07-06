@@ -66,23 +66,34 @@ public class PanelObject {
         
         var data: [simd_float3] = []
         
-        //generate our vector list so we can go through all the vectors in this poly object
+        //generate a VECTOR LIST so we can (in other functions) go through all the vectors in this poly object
         for p in PList {
             for v in p.VPoint {
                 VList.append(v)
             }
         }
         
+        //for each panel in the List
         for p in PList {
+            // if the object is not invisible
             if p.Invis == 0 {
-                //is panel object visible?
+                //caluclate whether it is visible in 3d space
                 if p.CalcVisible3d() == 1 {
-                    p.Project()
+                    //p.Project()
+                    for l in p.VPoint {
+                        
+                        //This data could already go to metal
+                        data.append(simd_make_float3(l.local))
+                        
+                        
+                    }
+                    
+                    /*p.Project()
                     //print("Projected displayed...")
                     if p.CalcVisible2d() == 1 {
-                        data.append(p.Display())
-                        print("Poly displayed")
-                    }
+                        data.append(contentsOf: p.Display())
+                        print("Poly displayed") } */
+                    
                 }
             }
         }
@@ -154,6 +165,7 @@ extension PanelObject {
         //print(Lines.count)
         
         // some magic for the DXF files
+        // NO BUT SERIOUSLY THINK TWICE BEFORE CHANGING MAGIC
         let XOffset = 7
         let YOffset = 11
         let ZOffset = 15

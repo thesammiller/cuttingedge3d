@@ -7,7 +7,7 @@
 //
 
 let XSTEP_PREC = 10 //used for bitshifting... not sure how that will work here
-let ZSTEP_PREC = 26
+let ZSTEP_PREC = 100
 
 class CeilLine {
     var X1, X2, Y1, Y2: Int

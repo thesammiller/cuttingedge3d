@@ -9,11 +9,14 @@
 import MetalKit
 
 struct rgba {
-    var red: Double = 0
-    var green: Double = 0
-    var blue: Double = 0
+    var red: Double = 0.9
+    var green: Double = 0.9
+    var blue: Double = 0.8
     var alpha: Double = 1
 }
+
+public let VFUNC = "vertexShader"
+public let FFUNC = "frgamentShader"
 
 public var device: MTLDevice!
 public var vertexBuffer: MTLBuffer!
@@ -57,13 +60,7 @@ class Renderer: NSObject, MTKViewDelegate {
         super.init()
         // middle
 
-        var clearColor = rgba()
-        clearColor.green = 1
         
-        metalView.clearColor = MTLClearColor(red: clearColor.red,
-                                             green: clearColor.green,
-                                             blue: clearColor.blue,
-                                             alpha: clearColor.alpha)
         
         metalView.delegate = self
         
@@ -72,7 +69,7 @@ class Renderer: NSObject, MTKViewDelegate {
 
         V = CEView()
         W = PanelObject()
-        W = W.DXFLoadModel("TEST")
+        W = W.DXFLoadModel("TEST2")
 
         CreateWorld(W: W, M: M, V: V)
         
@@ -83,8 +80,9 @@ class Renderer: NSObject, MTKViewDelegate {
 // Building Model and Pipeline State
 extension Renderer {
     
-    public static func buildModel() {
+    public static func buildVertexBuffer() {
         vertexBuffer = device.makeBuffer(bytes: &VertexData, length: MemoryLayout<simd_float3>.size, options: [])
+        print("World information buffered.")
         
         
         
@@ -125,22 +123,40 @@ extension Renderer {
             let drawable = view.currentDrawable
                 else { return }
         
+        //Trigger Game Engine --> Loads VertexData
         WorldLoop(W: W, M:M, V:V)
-        Renderer.buildModel()
-        Renderer.buildPipelineState(vFunc: "vertex_main", fFunc: "fragment_main")
+        
+        //buildModel creates the Buffer out of VertexData
+        Renderer.buildVertexBuffer()
+        
+        //Builds the pipeline state with the main functions
+        Renderer.buildPipelineState(vFunc: VFUNC, fFunc: FFUNC)
         
         
         guard
             let descriptor = view.currentRenderPassDescriptor,
-            let commandBuffer = commandQueue.makeCommandBuffer(),
-            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {
+            let commandBuffer = commandQueue.makeCommandBuffer() else {
                 return }
+        
+        let clearColor = rgba()
+        
+        descriptor.colorAttachments[0].clearColor = MTLClearColorMake(clearColor.red,
+                                             clearColor.green,
+                                             clearColor.blue,
+                                             clearColor.alpha)
+        
+        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {return}
+        
+        //if we have our pipelineState (made in buildPipelineState) --> no errors
+        
+        
         if pipelineState != nil {
             renderEncoder.setRenderPipelineState(pipelineState)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vCount)
+            renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: VertexData.count)
         }
+        
+        
         
         // ENDING
         renderEncoder.endEncoding()

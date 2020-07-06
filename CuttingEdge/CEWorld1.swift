@@ -64,8 +64,6 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     
     print("First world displayed.")
     
-    print(VertexData)
-    
     FrameCount = 0
     StartTime = clock()
 }
@@ -89,16 +87,15 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
         ZTrans = 0
         ZBuffer = []
     }
-
+    VertexData = []
     VertexData.append(contentsOf: W.Display(M))
-    print("World displayed.")
-    print(VertexData)
+    print("World vertex loaded.")
         
-    /*vertexBuffer = device.makeBuffer(bytes: VideoBuffer,
-                                                  length: MemoryLayout<float4x4>.size,
-                                                  options: []) as! MTLBuffer*/
+    /*vertexBuffer = device.makeBuffer(bytes: &VertexData,
+                                                  length: MemoryLayout<simd_float4>.size,
+                                                  options: []) as! MTLBuffer
         
-        
+      */
     //memmove vidmem, vidbuffer, bytesize
     // this is whatever the mtl commit thing is
         
