@@ -460,160 +460,155 @@ extension Panel3d {
         }
     }
     
-    
-    // when do we use the passed in argument?
-    // dest is a buffer???????
-    func Display() -> [simd_float3] {
+    func Display() -> simd_float3 {
         // could this entire function be shortcut by Metal? Yes.
-       
-        var dataDisplay2d: [simd_float3] = []
+
+           var RColor: Float // color of the panel
+           var DPtr: Int // pointer to the off-screen buffer (!)
+           var ZPtr: Int // Zbuffer ptr
+           
+           var LeftSeg: CeilLine = CeilLine()
+           var RightSeg: CeilLine = CeilLine() // used for interpolating values along sides
+           
+           var Top, RightPos, LeftPos, NewRightPos, NewLeftPos, Height, EdgeCount, YIndex, Width, XStart, XEnd, DeltaZ, ZStep, Z: Int
+           Top = 0
+           
+           RColor = Color
+           EdgeCount = SPCount
+           
+           //Search for lowest Y Coordinate (top of polyon)
+           for N in 0...SPCount-1 {
+               if (SPoint[N].Y < SPoint[Top].Y) {
+                   Top = N
+               }
+           }
+           RightPos = Top
+           LeftPos = Top
+           
+           //Calculate the index to the buffer
+           YIndex = Int(SPoint[Top].Y * WIDTH)
+           print("Hard coded 320 in Panel3d -> Display")
+           
+           //loop for all Polygon edges
+           while (EdgeCount > 0) {
+               //determine if the right side of the polygon needs (re)initializing
+               if (RightSeg.Height() <= 0) {
+                   NewRightPos = RightPos + 1
+                   if (NewRightPos >= SPCount ) {
+                       NewRightPos = 0}
+                   RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
+                   RightPos = NewRightPos
+                   EdgeCount -= 1
+                   //perform object precision clip on top edge
+                   //(if necessary)
+                   if (RightSeg.GetY() < MINY) {
+                       RightSeg.ClipTop(MINY)
+                       YIndex = MINY * WIDTH
+                       print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
+                   }
+               }
+               //determine if the left side of the polygon needs (re)initializing
+               if (LeftSeg.Height() <= 0) {
+                   NewLeftPos = LeftPos - 1
+                   if (NewLeftPos < 0) {
+                       NewLeftPos = (SPCount - 1 )
+                   }
+                   LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
+                   LeftPos = NewLeftPos
+                   EdgeCount -= 1
+                   // perform object precision clip if neccessary
+                   if (LeftSeg.GetY() < MINY) {
+                       LeftSeg.ClipTop(MINY)
+                       YIndex = MINY * WIDTH
+                   }
+               }
+               
+               //subdivide polygon into trapezoid
+               if (LeftSeg.Height() < RightSeg.Height()) {
+                   Height = LeftSeg.Height()
+                   if ( (LeftSeg.GetY() + Height) > MAXY) {
+                       Height = MAXY - LeftSeg.GetY()
+                       EdgeCount = 0
+                   }
+               } else {
+                   Height = RightSeg.Height()
+                   if ( (RightSeg.GetY() + Height ) > MAXY ) {
+                       Height = MAXY - RightSeg.GetY()
+                       EdgeCount = 0
+                   }
+               }
+               
+               //loop for the height of the trapezoid
+               while (Height > 0) {
+                   Height -= 1
+                   XStart = LeftSeg.GetX()
+                   XEnd = RightSeg.GetX()
+                   Width = XEnd - XStart
+                   if (Width > 0) {
+                       Z = LeftSeg.GetZ()
+                       DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
+                       ZStep = DeltaZ / Width
+                       
+                       //Clip the scan line
+                       var f: simd_int4
+                       f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
+                       XStart = Int(f[0])
+                       XEnd = Int(f[1])
+                       Z = Int(f[2])
+                       ZStep = Int(f[3])
+                       Width = XEnd - XStart
+                       
+                       //DPtr = Dest[YIndex + XStart]
+                       //DPtr is assigned the buffer location
+                       //We need to do the opposite -- assign the vertix to the buffer
+                       
+                       //Pass Along the 2D Point ????
+                       
+                       let X = Float(Width)
+                       let Y = Float(Height)
+                       ZPtr = ZBuffer[YIndex + XStart]
+                       
+                       
+                       vCount += 1
+                       print("Panel3d-> Display")
+                       
+                       
+                       //loop for width of scan-LINE_MAX
+                       while ( Width > 0 ) {
+                           Width -= 1
+                           if (ZPtr < Z) {
+                               ZPtr = Z
+                               DPtr = (Z >> 18) // bit shift
+                           }
+                           Z += ZStep
+                           //DPtr += 1
+                           ZPtr += 1
+                       }
+                        return (simd_make_float3(X, Y, Float(Z)))
+                   }
+                   YIndex += 320
+                       
+               }
+               
+           }
+           
+           //if 2d point was not created, return an empty float
+           return simd_make_float3(0)
+       }
         
-        for s in SPoint {
-            dataDisplay2d.append(simd_make_float3(Float(s.X), Float(s.Y), Float(s.Z)))
-        }
-        
-        return dataDisplay2d
     }
 
-
-}
         
 ///OLD DISPLAY FUNCTION
         /*
-        var RColor: Float // color of the panel
-        var DPtr: Int // pointer to the off-screen buffer (!)
-        var ZPtr: Int // Zbuffer ptr
-        
-        var LeftSeg: CeilLine = CeilLine()
-        var RightSeg: CeilLine = CeilLine() // used for interpolating values along sides
-        
-        var Top, RightPos, LeftPos, NewRightPos, NewLeftPos, Height, EdgeCount, YIndex, Width, XStart, XEnd, DeltaZ, ZStep, Z: Int
-        Top = 0
-        
-        RColor = Color
-        EdgeCount = SPCount
-        
-        //Search for lowest Y Coordinate (top of polyon)
-        for N in 0...SPCount-1 {
-            if (SPoint[N].Y < SPoint[Top].Y) {
-                Top = N
-            }
-        }
-        RightPos = Top
-        LeftPos = Top
-        
-        //Calculate the index to the buffer
-        YIndex = Int(SPoint[Top].Y * WIDTH)
-        print("Hard coded 320 in Panel3d -> Display")
-        
-        //loop for all Polygon edges
-        while (EdgeCount > 0) {
-            //determine if the right side of the polygon needs (re)initializing
-            if (RightSeg.Height() <= 0) {
-                NewRightPos = RightPos + 1
-                if (NewRightPos >= SPCount ) {
-                    NewRightPos = 0}
-                RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
-                RightPos = NewRightPos
-                EdgeCount -= 1
-                //perform object precision clip on top edge
-                //(if necessary)
-                if (RightSeg.GetY() < MINY) {
-                    RightSeg.ClipTop(MINY)
-                    YIndex = MINY * WIDTH
-                    print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
-                }
-            }
-            //determine if the left side of the polygon needs (re)initializing
-            if (LeftSeg.Height() <= 0) {
-                NewLeftPos = LeftPos - 1
-                if (NewLeftPos < 0) {
-                    NewLeftPos = (SPCount - 1 )
-                }
-                LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
-                LeftPos = NewLeftPos
-                EdgeCount -= 1
-                // perform object precision clip if neccessary
-                if (LeftSeg.GetY() < MINY) {
-                    LeftSeg.ClipTop(MINY)
-                    YIndex = MINY * WIDTH
-                }
-            }
-            
-            //subdivide polygon into trapezoid
-            if (LeftSeg.Height() < RightSeg.Height()) {
-                Height = LeftSeg.Height()
-                if ( (LeftSeg.GetY() + Height) > MAXY) {
-                    Height = MAXY - LeftSeg.GetY()
-                    EdgeCount = 0
-                }
-            } else {
-                Height = RightSeg.Height()
-                if ( (RightSeg.GetY() + Height ) > MAXY ) {
-                    Height = MAXY - RightSeg.GetY()
-                    EdgeCount = 0
-                }
-            }
-            
-            //loop for the height of the trapezoid
-            while (Height > 0) {
-                Height -= 1
-                XStart = LeftSeg.GetX()
-                XEnd = RightSeg.GetX()
-                Width = XEnd - XStart
-                if (Width > 0) {
-                    Z = LeftSeg.GetZ()
-                    DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
-                    ZStep = DeltaZ / Width
-                    
-                    //Clip the scan line
-                    var f: simd_int4
-                    f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
-                    XStart = Int(f[0])
-                    XEnd = Int(f[1])
-                    Z = Int(f[2])
-                    ZStep = Int(f[3])
-                    Width = XEnd - XStart
-                    
-                    //DPtr = Dest[YIndex + XStart]
-                    //DPtr is assigned the buffer location
-                    //We need to do the opposite -- assign the vertix to the buffer
-                    
-                    //Pass Along the 2D Point ????
-                    
-                    let X = Float(Width)
-                    let Y = Float(Height)
-                    ZPtr = ZBuffer[YIndex + XStart]
-                    
-                    
-                    vCount += 1
-                    print("Panel3d-> Display")
-                    
-                    return (simd_make_float3(X, Y, Float(Z)))
-                    
-                    //loop for width of scan-LINE_MAX
-                    while ( Width > 0 ) {
-                        Width -= 1
-                        if (ZPtr < Z) {
-                            ZPtr = Z
-                            DPtr = (Z >> 18) // bit shift
-                        }
-                        Z += ZStep
-                        //DPtr += 1
-                        ZPtr += 1
-                    }
-                }
-                //RightSeg += 1 --> Why increment RightSeg? What for?
-                //LeftSeg += 1
-                YIndex += 320
-                    
-            }
-            
-        }
-        
-        //if 2d point was not created, return an empty float
-        return simd_make_float3(0)
-    }
+ 
+ 
+ for s in SPoint {
+     dataDisplay2d.append(simd_make_float3(Float(s.X), Float(s.Y), Float(s.Z)))
+ }
+ 
+ return dataDisplay2d
+ 
     
     */
 

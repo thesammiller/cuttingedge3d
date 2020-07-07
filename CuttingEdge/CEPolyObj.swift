@@ -91,7 +91,7 @@ public class PanelObject {
                     p.Project()
                     //print("Projected displayed...")
                     if p.CalcVisible2d() == 1 {
-                        data.append(contentsOf: p.Display())
+                        data.append(p.Display())
                         print("Poly displayed") } 
                     
                 }
