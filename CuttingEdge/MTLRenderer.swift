@@ -15,8 +15,8 @@ struct rgba {
     var alpha: Double = 1
 }
 
-public let VFUNC = "vertexShader"
-public let FFUNC = "frgamentShader"
+public let VFUNC = "basic_vertex"
+public let FFUNC = "basic_fragment"
 
 public var device: MTLDevice!
 public var vertexBuffer: MTLBuffer!
@@ -44,25 +44,27 @@ class Renderer: NSObject, MTKViewDelegate {
     var V: CEView!
     var W: PanelObject!
     
+    var vertexBuffer: MTLBuffer!
+    var pipelineState: MTLRenderPipelineState!
     
-    init(metalView: MTKView) {
+    var commandQueue: MTLCommandQueue!
+    
+    let device: MTLDevice
+    let mtkView: MTKView
+    
+    
+    init(metalView: MTKView, device: MTLDevice) {
         
-        device = MTLCreateSystemDefaultDevice()
+        self.device = device
+        self.mtkView = metalView
+        
         commandQueue = device.makeCommandQueue()
         
         print("No MTL Compute commands have been implemented.")
         
-        library = device.makeDefaultLibrary()
-        
-        metalView.device = device
-        
         // super init in the middle
         super.init()
         // middle
-
-        
-        
-        metalView.delegate = self
         
         M = Matrix3d()
         M.Translate(0, -600, 0)
@@ -74,92 +76,49 @@ class Renderer: NSObject, MTKViewDelegate {
         CreateWorld(W: W, M: M, V: V)
         
     }
-}
 
-
-// Building Model and Pipeline State
-extension Renderer {
-    
-    public static func buildVertexBuffer() {
-        vertexBuffer = device.makeBuffer(bytes: &VertexData, length: MemoryLayout<simd_float3>.size, options: [])
-        print("World information buffered.")
-        
-        
-        
-        /*vertexBuffer = Renderer.device.makeBuffer(bytes: vertices,
-                                         length: vertices.count*MemoryLayout<Float>.size,
-                                         options: []) as! MTLBuffer */
-        
-        /*indexBuffer = Renderer.device.makeBuffer(bytes: indices,
-                                                 length: indices.count * MemoryLayout<UInt16>.size,
-                                                 options: []) as! MTLBuffer */
-    }
-    
-    public static func buildPipelineState(vFunc: String, fFunc: String) {
-        
-        let vertexFunction = library?.makeFunction(name: vFunc)
-        let fragmentFunction = library?.makeFunction(name: fFunc)
-        let pipelineDescriptor = MTLRenderPipelineDescriptor()
-        pipelineDescriptor.vertexFunction = vertexFunction
-        pipelineDescriptor.fragmentFunction = fragmentFunction
-        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        
-        do {
-            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
-        } catch let error as NSError {
-            print("error: \(error.localizedDescription)")
-        }
-    
-    }
-    
-}
-
-//MTKViewDelegate Conformity
-extension Renderer {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     func draw(in view: MTKView) {
-        guard
-            let drawable = view.currentDrawable
-                else { return }
         
         //Trigger Game Engine --> Loads VertexData
         WorldLoop(W: W, M:M, V:V)
         
-        //buildModel creates the Buffer out of VertexData
-        Renderer.buildVertexBuffer()
+        let dataSize = VertexData.count * MemoryLayout.size(ofValue: VertexData[0])
+            vertexBuffer = device.makeBuffer(bytes:&VertexData, length: dataSize, options: [[]]
+                )
+                
+        let defaultLibrary = device.makeDefaultLibrary()!
+        let fragmentProgram = defaultLibrary.makeFunction(name: FFUNC)
+        let vertexProgram = defaultLibrary.makeFunction(name: VFUNC)
         
-        //Builds the pipeline state with the main functions
-        Renderer.buildPipelineState(vFunc: VFUNC, fFunc: FFUNC)
-        
-        
-        guard
-            let descriptor = view.currentRenderPassDescriptor,
-            let commandBuffer = commandQueue.makeCommandBuffer() else {
-                return }
-        
-        let clearColor = rgba()
-        
-        descriptor.colorAttachments[0].clearColor = MTLClearColorMake(clearColor.red,
-                                             clearColor.green,
-                                             clearColor.blue,
-                                             clearColor.alpha)
-        
-        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {return}
-        
-        //if we have our pipelineState (made in buildPipelineState) --> no errors
-        
-        
-        if pipelineState != nil {
-            renderEncoder.setRenderPipelineState(pipelineState)
-            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-            renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: VertexData.count)
-        }
-        
-        
-        
-        // ENDING
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        pipelineDescriptor.vertexFunction = vertexProgram
+        pipelineDescriptor.fragmentFunction = fragmentProgram
+        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+            
+        pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+                
+        commandQueue = device.makeCommandQueue()
+            
+            
+        guard let drawable = mtkView.currentDrawable else {return}
+        let renderPassDescriptor = MTLRenderPassDescriptor()
+        renderPassDescriptor.colorAttachments[0].texture = drawable.texture
+        renderPassDescriptor.colorAttachments[0].loadAction = .clear
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor( red: 1.0,
+                                                                             green: 1.0,
+                                                                                    blue: 0,
+                                                                                    alpha: 1)
+                
+        let commandBuffer = commandQueue.makeCommandBuffer()!
+            
+        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+        renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: VertexData.count, instanceCount: 1)
         renderEncoder.endEncoding()
+                
         commandBuffer.present(drawable)
         commandBuffer.commit()
         

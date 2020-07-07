@@ -15,17 +15,32 @@ public var MouseClick = false
 
 class ViewController: NSViewController {
     
-    var metalView: MTKView {
-        return view as! MTKView}
+    //Metal properties
+    var device: MTLDevice!
+    var mtkView: MTKView!
     
-    
+    //Renderer file class
     public var renderer: Renderer?
-    var trackingArea: NSTrackingArea?
     
+    //mouse properties
+    var trackingArea: NSTrackingArea?
     var cursor: NSCursor?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        device = MTLCreateSystemDefaultDevice()
+        
+        mtkView = MTKView()
+        mtkView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mtkView)
+        
+        view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|[mtkView]|", options: [], metrics: nil, views: ["mtkView" : mtkView]))
+        view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[mtkView]|", options: [], metrics: nil, views: ["mtkView" : mtkView]))
+        
+        mtkView.device = device
+        
+        mtkView.colorPixelFormat = .bgra8Unorm
         
         // Mouse Functionality
         
@@ -39,7 +54,8 @@ class ViewController: NSViewController {
         self.view.addTrackingArea(trackingArea)
         
         // METAL LOOP -- ANY CODE AFTER THIS SHALL NOT PASS
-        renderer = Renderer(metalView: metalView)
+        renderer = Renderer(metalView: mtkView, device: device)
+        mtkView.delegate = renderer
     }
 
     override var representedObject: Any? {
