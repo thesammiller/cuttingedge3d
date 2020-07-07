@@ -88,11 +88,11 @@ public class PanelObject {
                         
                     }
                     
-                    /*p.Project()
+                    p.Project()
                     //print("Projected displayed...")
                     if p.CalcVisible2d() == 1 {
                         data.append(contentsOf: p.Display())
-                        print("Poly displayed") } */
+                        print("Poly displayed") } 
                     
                 }
             }
@@ -162,9 +162,8 @@ extension PanelObject {
             Points.append(Point3d())
         }
         
-        
-        
-        // some magic for the DXF files spacing --> just for indexing
+        // some magic for the DXF files parsing
+        // DO NOT TOUCH
         let XOffset = 7
         let YOffset = 11
         let ZOffset = 15
@@ -177,23 +176,18 @@ extension PanelObject {
             
             
             //convert the line at index to a float value
-            //and divide to convert from cutting edge space to metal space
+            // these are points in 3d space
             
             if Float(Lines[XValue]) != nil {
-                var temp = Float(Lines[XValue])!
-                Points[c].local[x] = temp/1000
+                Points[c].local[x] = Float(Lines[XValue])!
             } else {Points[c].local[x] = 0.0}
             
             if Float(Lines[YValue]) != nil {
-                var temp = Float(Lines[YValue])!
-                Points[c].local[y]  = temp/1000
+                Points[c].local[y]   = Float(Lines[YValue])!
             } else {Points[c].local[y] = 0.0}
             
             if Float(Lines[ZValue]) != nil {
-                var temp = Float(Lines[ZValue])!
-                temp = temp/2000
-                Points[c].local[z] = temp
-                
+                Points[c].local[z] = Float(Lines[ZValue])!
             } else {Points[c].local[z] = 0.0}
             
             Points[c].world = simd_make_float4(1)

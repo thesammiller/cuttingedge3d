@@ -346,7 +346,7 @@ extension Panel3d {
     func CalcVisible2d() -> Int {
         // perform 2d culling
         ResetCalc2dData()
-        /*
+        
         // make sure the panel has more than two points --> not just a line!
         if (SPCount < 3) {
             //if not, flag panel as invisible
@@ -408,7 +408,7 @@ extension Panel3d {
             Invis = Int(num/den)
             Visible = 0
             print(AveY, SPCount, num, den, Invis)
-        }*/
+        }
 
         return Visible
     }

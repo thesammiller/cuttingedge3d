@@ -84,13 +84,23 @@ class Renderer: NSObject, MTKViewDelegate {
         //Trigger Game Engine --> Loads VertexData
         WorldLoop(W: W, M:M, V:V)
         
+        if VertexData.count == 0 {
+            VertexData = [float3(0)]
+        }
+        
+        
+        //recalculate dataSize
         let dataSize = VertexData.count * MemoryLayout.size(ofValue: VertexData[0])
-            vertexBuffer = device.makeBuffer(bytes:&VertexData, length: dataSize, options: [[]]
-                )
+        
+        //Vertex Buffer made out of Vertex Data loaded in Game Engine Loop
+        vertexBuffer = device.makeBuffer(bytes:&VertexData, length: dataSize, options: [[]])
                 
+        
+        //library functions
         let defaultLibrary = device.makeDefaultLibrary()!
-        let fragmentProgram = defaultLibrary.makeFunction(name: FFUNC)
         let vertexProgram = defaultLibrary.makeFunction(name: VFUNC)
+        let fragmentProgram = defaultLibrary.makeFunction(name: FFUNC)
+        
         
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
         pipelineDescriptor.vertexFunction = vertexProgram
@@ -110,7 +120,6 @@ class Renderer: NSObject, MTKViewDelegate {
                                                                              green: 1.0,
                                                                                     blue: 0,
                                                                                     alpha: 1)
-                
         let commandBuffer = commandQueue.makeCommandBuffer()!
             
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!

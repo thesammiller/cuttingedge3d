@@ -76,7 +76,6 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     
     MaxWait = Float(256*256)
     
-    
     UpdatePos(V: V)
     M.Translate(0, 0, -V.ZPos)
     M.Rotate(-V.XRot, V.YRot, -V.ZRot)
@@ -91,19 +90,10 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     VertexData.append(contentsOf: W.Display(M))
     print("World vertex loaded.")
         
-    /*vertexBuffer = device.makeBuffer(bytes: &VertexData,
-                                                  length: MemoryLayout<simd_float4>.size,
-                                                  options: []) as! MTLBuffer
-        
-      */
-    //memmove vidmem, vidbuffer, bytesize
-    // this is whatever the mtl commit thing is
-        
-        
     EndTime = clock()
-    FramesPerSecond = Float(FrameCount) /
-                            Float(EndTime - StartTime)
-    print("FPS: \(FramesPerSecond)")
+    let FrameTime = EndTime-StartTime
+    print("FrameTime: \(FrameTime)")
+    StartTime = EndTime
     
 }
 
