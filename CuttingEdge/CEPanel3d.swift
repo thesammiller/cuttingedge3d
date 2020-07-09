@@ -284,30 +284,28 @@ extension Panel3d {
     //SCREEN PROJECTION
     //Load up the Screen Points parameter SPoints
     func Rasterize() {
-        var OneOverZ: Float
+        //reset our screen points
+        SPoint = []
         
-        //Project panel points
-        for Count in 0...ZClipPoint.count-1 {
+        for zc in ZClipPoint {
             //calculate 1/z for vector normalization
-            OneOverZ = Float(1)/ZClipPoint[Count].world[z]
-            
-            let zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
-            
+            let OneOverZ = Float(1)/zc.world[z]
             var screenPoint = Point2d()
-            screenPoint.X = zclip + Float(WIDTH)/2.0
-            screenPoint.Y = zclip + Float(HEIGHT)/2.0
+            let zclip = OneOverZ * Float(XSCALE) * zc.world[z]
+            print(zclip)
+            
+            let screenX = zc.world[x] * XSCALE * OneOverZ
+            let screenY = zc.world[y] * YSCALE * OneOverZ
+            
+            screenPoint.X = screenX + Float(WIDTH)/2.0
+            screenPoint.Y = screenY + Float(HEIGHT)/2.0
+            screenPoint.Z = OneOverZ
+            
             SPoint.append(screenPoint)
-            
-            //print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
-            
-            //NOT SURE WHAT TO DO FOR LOGIC HERE
-            SPoint[Count].Z = OneOverZ
-            
         }
         //reset ZClipPoint count for next loop
-        for _ in 0...ZClipPoint.count {
-            ZClipPoint.popLast()
-        }
+        ZClipPoint = []
+        
     }
 
     func CalcVisible3d() -> Float {
@@ -368,56 +366,52 @@ extension Panel3d {
             if (p.X < MINX) {
                 XMinInVis += 1
             }
-            else {
-                if (p.X > MAXX) {
-                    XMaxInVis += 1
-                }
+            if (p.X > MAXX) {
+                XMaxInVis += 1
             }
             if (p.Y < MINY) {
                 YMinInVis += 1
             }
-            else {
-                if (p.Y > MAXY) {
-                    YMaxInVis += 1}
+            if (p.Y > MAXY) {
+                YMaxInVis += 1
             }
-        
+            
             AveX += Float(p.X)
             AveY += Float(p.Y)
         }
         
         //do we have as many invisible x components as points?
-        if (XMinInVis >= SPCount) {
-            print("XMinInVis")
+        if (XMinInVis >= SPoint.count) {
+            debugMsg("XMinInVis")
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
             AveX /= Float(SPCount)
             Invis = Float(abs(AveX)/(Float(WIDTH)*26))
             Visible = 0
         }
-        if (YMinInVis >= SPCount) {
+        if (YMinInVis >= SPoint.count) {
             debugMsg("YMinInVis")
-            AveY /= Float(SPCount)
+            AveY /= Float(SPoint.count)
             Invis = Float(abs(AveY)*(Float(HEIGHT)*26))
-            
             Visible = 0
             }
-        if (XMaxInVis >= SPCount) {
+        if (XMaxInVis >= SPoint.count) {
             print("XMaxInVis")
             //assume panel will remain invisible for a time
-            AveX /= Float(SPCount)
+            AveX /= Float(SPoint.count)
             let num = (AveX-Float(MAXX))
             let den = Float(WIDTH*26)
             Invis = Float( num/den )
             Visible = 0
         }
-        if (YMaxInVis >= SPCount) {
-            AveY/=Float(SPCount)
+        if (YMaxInVis >= SPoint.count) {
+            print("Ymaxinvis \(YMaxInVis)")
+            AveY/=Float(SPoint.count)
             let num = (AveY-Float(MAXY))
             let den = Float(HEIGHT*26)
             Invis = Float(num/den)
             Visible = 0
-            print(AveY, SPCount, num, den, Invis)
         }
-
+        
         return Visible
     }
     
@@ -506,7 +500,7 @@ extension Panel3d {
            EdgeCount = SPCount
            
            //Search for lowest Y Coordinate (top of polyon)
-           for N in 0...SPCount-1 {
+        for N in 0...SPoint.count-1 {
                if (SPoint[N].Y < SPoint[Top].Y) {
                    Top = N
                }

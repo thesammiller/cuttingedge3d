@@ -54,18 +54,18 @@ let EMPTY_MATRIX = float4x4(0)
 // THINK TWICE BEFORE ALTERING MAGIC NUMBERS... 
 
 let PI = 3.141592654
-let MINX = Float(-1000.0)
-let MAXX = Float(1000.0)
-let MINY = Float(-1000.0)
-let MAXY = Float(1000.0)
+let MINX = Float(10.0)
+let MAXX = Float(309.0)
+let MINY = Float(10.0)
+let MAXY = Float(189.0)
 let WIDTH = Float(320)
 let HEIGHT = Float(200)
 let XCENTER = 160
 let YCENTER = 100
 let MINZ = Float(100.0)
 let MAXZ = Float(2000.0)
-let XSCALE = 120
-let YSCALE = -120
+let XSCALE = Float(120)
+let YSCALE = Float(-120)
 
 //BUFFER VARIABLE???? What does ZBuffer do?
 var ZBuffer: [Float] = []

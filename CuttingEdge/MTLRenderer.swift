@@ -71,7 +71,7 @@ class Renderer: NSObject, MTKViewDelegate {
 
         V = CEView()
         W = PanelObject()
-        W = W.DXFLoadModel("TEST2")
+        W = W.DXFLoadModel("TEST")
 
         CreateWorld(W: W, M: M, V: V)
         
@@ -85,9 +85,8 @@ class Renderer: NSObject, MTKViewDelegate {
         WorldLoop(W: W, M:M, V:V)
         
         if VertexData.count == 0 {
-            VertexData = [float3(0)]
+            VertexData = [simd_float3(repeating: 0)]
         }
-        
         
         //recalculate dataSize
         let dataSize = VertexData.count * MemoryLayout.size(ofValue: VertexData[0])

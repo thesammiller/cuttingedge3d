@@ -91,12 +91,11 @@ public class PanelObject {
                     //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
                         data.append(p.Display())
-                        print("Poly displayed") } 
-                    
+                        print(data)
+                    }
                 }
             }
         }
-        print(data)
         return data
     }
 }
