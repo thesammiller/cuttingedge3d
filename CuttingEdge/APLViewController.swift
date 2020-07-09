@@ -20,7 +20,7 @@ class ViewController: NSViewController {
     var mtkView: MTKView!
     
     //Renderer file class
-    public var renderer: Renderer?
+    public var renderer: Renderer!
     
     //mouse properties
     var trackingArea: NSTrackingArea?
@@ -31,13 +31,13 @@ class ViewController: NSViewController {
         
         device = MTLCreateSystemDefaultDevice()
         
-        mtkView = MTKView()
-        //mtkView.translatesAutoresizingMaskIntoConstraints = false
+        mtkView = MTKView(frame: NSMakeRect(0, 0, CGFloat(WIDTH), CGFloat(HEIGHT)))
+        mtkView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(mtkView)
-        
+        /*
         view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|[mtkView]|", options: [], metrics: nil, views: ["mtkView" : mtkView]))
         view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[mtkView]|", options: [], metrics: nil, views: ["mtkView" : mtkView]))
-        
+        */
         mtkView.device = device
         
         mtkView.colorPixelFormat = .bgra8Unorm
