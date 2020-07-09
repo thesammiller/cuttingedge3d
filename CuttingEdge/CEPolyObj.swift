@@ -86,16 +86,18 @@ public class PanelObject {
                     p.ProjectClips()
                     //Create the display points (fill SPoints)
                     p.DisplayPoints()
-                    
                     //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
                         //Now Rasterize!
                         var ZDict = p.Display()
                         for p2d in ZDict.keys {
                             
-                            let XVal = (p2d[0]-(WIDTH/2))/WIDTH
-                            let YVal = (p2d[1]-(HEIGHT/2))/HEIGHT
-                            let ZVal = ZDict[p2d]!
+                            
+                            //Convert to Metal Dimensions
+                            let XVal = -1 + (p2d[0]/WIDTH) * 2
+                            let YVal = -1 + (p2d[1]/HEIGHT) * 2
+                            let ZVal = ZDict[p2d]! * 1000
+                            
                             
                             data.append(simd_float3(XVal, YVal, ZVal))
                         }

@@ -114,9 +114,9 @@ class Renderer: NSObject, MTKViewDelegate {
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = drawable.texture
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor( red: 1.0,
-                                                                             green: 1.0,
-                                                                                    blue: 0,
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor( red: 0.75,
+                                                                             green: 0.75,
+                                                                             blue: 0.75,
                                                                                     alpha: 1)
         let commandBuffer = commandQueue.makeCommandBuffer()!
             
