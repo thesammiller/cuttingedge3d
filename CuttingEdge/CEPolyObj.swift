@@ -90,9 +90,8 @@ public class PanelObject {
                     
                     //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
-                        //Rasterize
-                        data.append(p.Display())
-                        print(data)
+                        //Now Rasterize!
+                        data = p.Display()
                     }
                 }
             }

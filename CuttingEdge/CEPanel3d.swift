@@ -361,7 +361,7 @@ extension Panel3d {
         return Visible
     }
     
-    func Display() -> simd_float3 {
+    func Display() -> [simd_float3] {
         
         // color of the panel
         var RColor: Float
@@ -405,6 +405,8 @@ extension Panel3d {
         RColor = Color
         //clear the ZBuffer --> will revisit this if it proves to be a bottleneck
         ZBuffer = [:]
+        var XBuffer: [Float] = []
+        var YBuffer: [Float] = []
         //set edgecount to the number of vertices in the clipped/projected 3d panel
         EdgeCount = SPoint.count
            
@@ -425,9 +427,10 @@ extension Panel3d {
             if (RightSeg.Height() <= 0) {
                 var nrpIndex = SPoint.firstIndex(of: Top)! + 1
                 //adding one might exceed the index so if so, reset
-                if (nrpIndex > SPoint.count) {nrpIndex = 0}
+                if (nrpIndex > SPoint.count-1) {nrpIndex = 0}
                 NewRightPos = SPoint[nrpIndex]
             
+                //reinitialize right segment
                 RightSeg = CeilLine(P1: RightPos, P2: NewRightPos)
                 RightPos = NewRightPos
                 EdgeCount -= 1
@@ -435,27 +438,28 @@ extension Panel3d {
                 //(if necessary)
                 if (RightSeg.GetY() < MINY) {
                     RightSeg.ClipTop(MINY)
-                //YIndex = Int(MINY * WIDTH)
                 }
             } //return to the while loop...
             
-            //determine if the left side of the polygon needs interpolation
+            //determine if the left side of the polygon needs initialization
             if (LeftSeg.Height() <= 0) {
-                var nlpIndex = SPoint.firstIndex(of: Top)! + 1
-                if (nlpIndex > SPoint.count) {nlpIndex = 0}
+                var nlpIndex = SPoint.firstIndex(of: Top)! - 1
+                if (nlpIndex < 0) {nlpIndex = SPoint.count-1}
                 NewLeftPos = SPoint[nlpIndex]
             
+                //initialize left segment
                 LeftSeg = CeilLine(P1: LeftPos, P2: NewLeftPos)
                 LeftPos = NewLeftPos
                 EdgeCount -= 1
-                   // perform object precision clip if neccessary
+                // perform object precision clip if neccessary
                 if (LeftSeg.GetY() < MINY) {
                     LeftSeg.ClipTop(MINY)
-                    //YIndex = Int(MINY * WIDTH)
                    }
                }
                
-               //subdivide polygon into trapezoid
+            //subdivide polygon into trapezoid
+            //first -- determine the shortest segment and store the value into height
+            //(include clipping for maxy)
             if (LeftSeg.Height() < RightSeg.Height()) {
                 Height = LeftSeg.Height()
                 if ( (LeftSeg.GetY() + Height) > MAXY) {
@@ -469,6 +473,7 @@ extension Panel3d {
                     EdgeCount = 0
                 }
             }
+            
                
             //loop for the height of the trapezoid
             while (Height > 0) {
@@ -489,6 +494,27 @@ extension Panel3d {
                     Z = f[2]
                     ZStep = f[3]
                     Width = XEnd - XStart
+                    
+                    
+                    let Y = Float(Height)
+                    for x in 0...Int(Width) {
+                        let X = Float(x)
+                        if YBuffer.contains(Y) {
+                            if XBuffer.contains(X) {
+                                if ZBuffer.keys.contains(simd_float2(X, Y)) {
+                                    if ZBuffer[simd_float2(X, Y)]! < Z {
+                                        ZBuffer[simd_float2(X, Y)] = Z
+                                    }
+                                    else {
+                                        continue
+                                    }
+                                }
+                            }
+                        }
+                        ZBuffer[simd_float2(X, Y)] = Z
+                    }
+                    
+                    
                        
                        //DPtr = Dest[YIndex + XStart]
                        //DPtr is assigned the buffer location
@@ -496,12 +522,10 @@ extension Panel3d {
                        
                        //Pass Along the 2D Point ????
                        
-                    let X = Float(Width)
-                    let Y = Float(Height)
-                    
+
                     //I'm going to use a dictionary instead of the pointer nonsense the original C++ uses
                     //I should be able to look up any X,Y coordinate, see if it has a Z value, and go from there
-                    ZBuffer[simd_float2(X, Y)] = Z
+                    
                        //ZPtr = ZBuffer[YIndex + Int(XStart)]
                        
                     vCount += 1
@@ -519,8 +543,10 @@ extension Panel3d {
                            //DPtr += 1
                            ZPtr += 1
                        }*/
-                    return (simd_make_float3(X, Y, Float(Z)))
                    }
+                    LeftSeg += 1
+                    RightSeg += 1
+                
                    //YIndex += 320
                        
                }
@@ -528,10 +554,17 @@ extension Panel3d {
            }
            
            //if 2d point was not created, return an empty float
-           return simd_make_float3(0)
-       }
+        var data: [simd_float3] = []
         
-}
+        for p2d in ZBuffer.keys {
+            data.append(simd_float3(p2d, ZBuffer[p2d]!))
+        }
+        return data
+        }
+
+    }
+        
+
 
 //HELPER FUNCTIONS FOR METHOD CALVISIBLE3D
 extension Panel3d {

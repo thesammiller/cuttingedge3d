@@ -60,7 +60,7 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     V.Clear()
     
     //2D Points
-    VertexData.append(contentsOf: World.Display(Matrix))
+    VertexData = World.Display(Matrix)
     
     print("First world displayed.")
     
