@@ -371,12 +371,12 @@ extension Panel3d {
         var LeftSeg = CeilLine()
         var RightSeg = CeilLine() // used for interpolating values along sides
         
-        //Index into SPoint -> Point Closest to the Top of Screen
-        var Top: Int
-        //Index into SPoint -- Top Right Edge, Top Left Edge
-        var RightPos, LeftPos: Int
-        //Index bottom of right edge boottom of left edge
-        var NewRightPos, NewLeftPos: Int
+        //Point in SPoint -> Point Closest to the Top of Screen
+        var Top: Point2d
+        //Point in SPoint --> Top Right Edge, Top Left Edge
+        var RightPos, LeftPos: Point2d
+        //Index for Point in Spoint --> bottom of right edge bottom of left edge
+        var NewRightPos, NewLeftPos: Point2d
         
         //Trapezoid Height
         var  Height: Float
@@ -391,25 +391,30 @@ extension Panel3d {
         var DeltaZ: Float
         //actual 1/z step used in interpolation process
         var ZStep: Float
+        // 1/z value at the current pixel
+        //(will be somewhere between 1 at the front and .0000000001 at the back
+        //(compare to metal space..., 0 in front, 1 in back?)
+        var Z: Float
         
         //unexplained for now...
-        var  Width, Z: Float
+        var  Width: Float
         
-        //Initialize Top
-        Top = 0
-        //Set Color
+        //Initialize Top to starting value
+        Top = SPoint[0]
+        //Set Color to the panel's color
         RColor = Color
         //clear the ZBuffer --> will revisit this if it proves to be a bottleneck
         ZBuffer = [:]
         //set edgecount to the number of vertices in the clipped/projected 3d panel
         EdgeCount = SPoint.count
            
-        //STEP 1: FIND THE TOP OF THE PANEL
-        for N in 0...SPoint.count-1 {
-            if (SPoint[N].Y < SPoint[Top].Y) {
-                Top = N
+        //STEP 1: FIND THE INDEX FOR THE TOP VERTEX OF THE PANEL
+        for p in SPoint {
+            if (p.Y < Top.Y) {
+                Top = p
             }
         }
+        
         RightPos = Top
         LeftPos = Top
            
@@ -418,70 +423,72 @@ extension Panel3d {
             
             //determine if the right side of the polygon needs interpolation
             if (RightSeg.Height() <= 0) {
-                print("Always true?")
-                NewRightPos = RightPos + 1
-            if (NewRightPos >= SPoint.count ) {
-                NewRightPos = 0}
-                RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
+                var nrpIndex = SPoint.firstIndex(of: Top)! + 1
+                //adding one might exceed the index so if so, reset
+                if (nrpIndex > SPoint.count) {nrpIndex = 0}
+                NewRightPos = SPoint[nrpIndex]
+            
+                RightSeg = CeilLine(P1: RightPos, P2: NewRightPos)
                 RightPos = NewRightPos
                 EdgeCount -= 1
                 //perform object precision clip on top edge
                 //(if necessary)
                 if (RightSeg.GetY() < MINY) {
                     RightSeg.ClipTop(MINY)
-                    //YIndex = Int(MINY * WIDTH)
-                   }
-               }
-               //determine if the left side of the polygon needs interpolation
-               if (LeftSeg.Height() <= 0) {
-                   NewLeftPos = LeftPos - 1
-                   if (NewLeftPos < 0) {
-                    NewLeftPos = (SPoint.count - 1 )
-                   }
-                   LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
-                   LeftPos = NewLeftPos
-                   EdgeCount -= 1
+                //YIndex = Int(MINY * WIDTH)
+                }
+            } //return to the while loop...
+            
+            //determine if the left side of the polygon needs interpolation
+            if (LeftSeg.Height() <= 0) {
+                var nlpIndex = SPoint.firstIndex(of: Top)! + 1
+                if (nlpIndex > SPoint.count) {nlpIndex = 0}
+                NewLeftPos = SPoint[nlpIndex]
+            
+                LeftSeg = CeilLine(P1: LeftPos, P2: NewLeftPos)
+                LeftPos = NewLeftPos
+                EdgeCount -= 1
                    // perform object precision clip if neccessary
-                   if (LeftSeg.GetY() < MINY) {
-                       LeftSeg.ClipTop(MINY)
+                if (LeftSeg.GetY() < MINY) {
+                    LeftSeg.ClipTop(MINY)
                     //YIndex = Int(MINY * WIDTH)
                    }
                }
                
                //subdivide polygon into trapezoid
-               if (LeftSeg.Height() < RightSeg.Height()) {
-                   Height = LeftSeg.Height()
-                   if ( (LeftSeg.GetY() + Height) > MAXY) {
-                       Height = MAXY - LeftSeg.GetY()
-                       EdgeCount = 0
-                   }
-               } else {
-                   Height = RightSeg.Height()
-                   if ( (RightSeg.GetY() + Height ) > MAXY ) {
-                       Height = MAXY - RightSeg.GetY()
-                       EdgeCount = 0
-                   }
-               }
+            if (LeftSeg.Height() < RightSeg.Height()) {
+                Height = LeftSeg.Height()
+                if ( (LeftSeg.GetY() + Height) > MAXY) {
+                    Height = MAXY - LeftSeg.GetY()
+                    EdgeCount = 0
+                }
+            } else {
+                Height = RightSeg.Height()
+                if ( (RightSeg.GetY() + Height ) > MAXY ) {
+                    Height = MAXY - RightSeg.GetY()
+                    EdgeCount = 0
+                }
+            }
                
-               //loop for the height of the trapezoid
-               while (Height > 0) {
-                   Height -= 1
-                   XStart = LeftSeg.GetX()
-                   XEnd = RightSeg.GetX()
-                   Width = XEnd - XStart
-                   if (Width > 0) {
-                       Z = LeftSeg.GetZ()
-                       DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
-                       ZStep = DeltaZ / Width
+            //loop for the height of the trapezoid
+            while (Height > 0) {
+                Height -= 1
+                XStart = LeftSeg.GetX()
+                XEnd = RightSeg.GetX()
+                Width = XEnd - XStart
+                if (Width > 0) {
+                    Z = LeftSeg.GetZ()
+                    DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
+                    ZStep = DeltaZ / Width
                        
                        //Clip the scan line
-                       var f: simd_float4
-                       f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
+                    var f: simd_float4
+                    f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
                     XStart = f[0]
-                       XEnd = f[1]
-                       Z = f[2]
-                       ZStep = f[3]
-                       Width = XEnd - XStart
+                    XEnd = f[1]
+                    Z = f[2]
+                    ZStep = f[3]
+                    Width = XEnd - XStart
                        
                        //DPtr = Dest[YIndex + XStart]
                        //DPtr is assigned the buffer location
@@ -489,16 +496,16 @@ extension Panel3d {
                        
                        //Pass Along the 2D Point ????
                        
-                       let X = Float(Width)
-                       let Y = Float(Height)
+                    let X = Float(Width)
+                    let Y = Float(Height)
                     
                     //I'm going to use a dictionary instead of the pointer nonsense the original C++ uses
                     //I should be able to look up any X,Y coordinate, see if it has a Z value, and go from there
                     ZBuffer[simd_float2(X, Y)] = Z
                        //ZPtr = ZBuffer[YIndex + Int(XStart)]
                        
-                       vCount += 1
-                       print("Panel3d-> Display")
+                    vCount += 1
+                    print("Panel3d-> Display")
                        
                        /*
                      //loop for width of scan-LINE_MAX
@@ -512,7 +519,7 @@ extension Panel3d {
                            //DPtr += 1
                            ZPtr += 1
                        }*/
-                        return (simd_make_float3(X, Y, Float(Z)))
+                    return (simd_make_float3(X, Y, Float(Z)))
                    }
                    //YIndex += 320
                        
