@@ -31,7 +31,6 @@ public class PanelObject {
     var VList: [Point3d] = []
     var PList: [Panel3d] = []
     var PCount: Float = 0
-    var VCount: Float = 0
     var Visible: Float = 0
     var Radius: Float = 0
     
@@ -91,7 +90,17 @@ public class PanelObject {
                     //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
                         //Now Rasterize!
-                        data = p.Display()
+                        var ZDict = p.Display()
+                        for p2d in ZDict.keys {
+                            
+                            let XVal = (p2d[0]-(WIDTH/2))/WIDTH
+                            let YVal = (p2d[1]-(HEIGHT/2))/HEIGHT
+                            let ZVal = ZDict[p2d]!
+                            
+                            data.append(simd_float3(XVal, YVal, ZVal))
+                        }
+                        print(data)
+                        
                     }
                 }
             }

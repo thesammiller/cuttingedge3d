@@ -71,7 +71,7 @@ class Renderer: NSObject, MTKViewDelegate {
 
         V = CEView()
         W = PanelObject()
-        W = W.DXFLoadModel("TEST2")
+        W = W.DXFLoadModel("TEST")
 
         CreateWorld(W: W, M: M, V: V)
         
@@ -93,7 +93,6 @@ class Renderer: NSObject, MTKViewDelegate {
         
         //Vertex Buffer made out of Vertex Data loaded in Game Engine Loop
         vertexBuffer = device.makeBuffer(bytes:&VertexData, length: dataSize, options: [[]])
-                
         
         //library functions
         let defaultLibrary = device.makeDefaultLibrary()!

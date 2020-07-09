@@ -86,14 +86,14 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
         ZTrans = 0
         ZBuffer = [:]
     }
-    VertexData = []
-    VertexData.append(contentsOf: W.Display(M))
+    
+    VertexData = W.Display(M)
     print("World vertex loaded.")
         
-    EndTime = clock()
+    /*EndTime = clock()
     let FrameTime = EndTime-StartTime
     print("FrameTime: \(FrameTime)")
-    StartTime = EndTime
+    StartTime = EndTime*/
     
 }
 

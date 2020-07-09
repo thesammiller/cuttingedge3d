@@ -361,7 +361,7 @@ extension Panel3d {
         return Visible
     }
     
-    func Display() -> [simd_float3] {
+    func Display() -> [simd_float2:Float] {
         
         // color of the panel
         var RColor: Float
@@ -514,52 +514,13 @@ extension Panel3d {
                         ZBuffer[simd_float2(X, Y)] = Z
                     }
                     
-                    
-                       
-                       //DPtr = Dest[YIndex + XStart]
-                       //DPtr is assigned the buffer location
-                       //We need to do the opposite -- assign the vertix to the buffer
-                       
-                       //Pass Along the 2D Point ????
-                       
-
-                    //I'm going to use a dictionary instead of the pointer nonsense the original C++ uses
-                    //I should be able to look up any X,Y coordinate, see if it has a Z value, and go from there
-                    
-                       //ZPtr = ZBuffer[YIndex + Int(XStart)]
-                       
-                    vCount += 1
-                    print("Panel3d-> Display")
-                       
-                       /*
-                     //loop for width of scan-LINE_MAX
-                       while ( Width > 0 ) {
-                           Width -= 1
-                           if (ZPtr < Z) {
-                               ZPtr = Z
-                               //DPtr = (Z >> 18) // bit shift
-                           }
-                           Z += ZStep
-                           //DPtr += 1
-                           ZPtr += 1
-                       }*/
-                   }
-                    LeftSeg += 1
-                    RightSeg += 1
-                
-                   //YIndex += 320
-                       
+                }
+                LeftSeg += 1
+                RightSeg += 1
                }
-               
-           }
+           } // exited main while loop
            
-           //if 2d point was not created, return an empty float
-        var data: [simd_float3] = []
-        
-        for p2d in ZBuffer.keys {
-            data.append(simd_float3(p2d, ZBuffer[p2d]!))
-        }
-        return data
+        return ZBuffer
         }
 
     }
@@ -680,18 +641,3 @@ public func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_fl
     f[3] = zstep
     return f
 }
-
-
-        
-///OLD DISPLAY FUNCTION
-        /*
- 
- 
- for s in SPoint {
-     dataDisplay2d.append(simd_make_float3(Float(s.X), Float(s.Y), Float(s.Z)))
- }
- 
- return dataDisplay2d
- 
-    
-    */
