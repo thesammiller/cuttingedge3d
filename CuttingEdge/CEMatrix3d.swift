@@ -19,7 +19,7 @@ public class Matrix3d {
     init(_ M: float4x4) {
         
         Matrix = M
-        RMatrix = float4x4(EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR)
+        RMatrix = EMPTY_MATRIX
         
         Zr = 0
         Yr = 0
@@ -28,7 +28,6 @@ public class Matrix3d {
         XTrans = Float(0)
         YTrans = Float(0)
         ZTrans = Float(0)
-        
         
     }
     init() {

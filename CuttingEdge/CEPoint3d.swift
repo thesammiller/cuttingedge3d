@@ -17,8 +17,7 @@ public class Point3d {
     var local: simd_float4
     var world: simd_float4
     
-    
-    init(_ local: simd_float4=EMPTYVECTOR, world: simd_float4=EMPTYVECTOR) {
+    init(_ local: simd_float4=simd_float4(0), world: simd_float4=simd_float4(0)) {
         self.local = local
         self.world = world
     }
@@ -89,8 +88,6 @@ extension Point3d: Equatable {
         left.local *= right
     }
     
-    
-    
     static func += (left: inout Point3d, right: Float) {
         left.local[x] += right
         left.local[y] += right
@@ -134,29 +131,13 @@ extension Point3d: Equatable {
           t.local[z] = left.local[z] - right
           return t
       }
-    
-    
 
     func Mag() -> Float {
         return sqrt( pow(self.local[0], 2) + pow(self.local[1], 2) + pow(self.local[2], 2) )
     }
-
-    func MTLMag() -> Double {
-        // metal has a sqrt unction...
-        return 0
-    }
     
-    
-    // metal implementation?
     func DotUnit(_ foreign: Point3d) -> Float {
         return dot(self.local, foreign.local)
-    }
-    
-    func MTLDotUnit(_ foreign: Point3d) -> Float {
-        print("Point3d->MTLDotUnit not implemented.")
-        //need to read up on threads/thread groups
-        //need to figure out how to have one thread for computation, one for graphics
-        return Float(0.0)
     }
     
     func DotNotUnit(_ foreign: Point3d) -> Float {
@@ -166,16 +147,12 @@ extension Point3d: Equatable {
             self.local[2] * foreign.local[2] ) / ( self.Mag() * foreign.Mag() )
         return dot
     }
-    
-    func MTLDotNotUnit(_ foreign: Point3d) -> Float {
-        print("Point3d->MTLDotNotUnit not implemented.")
-        //how can we parallel this?
-        return Float(0.0)
-    }
-    
 }
 
-func UniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
+
+//PUBLIC FUNCTIONS
+
+public func UniqueVert(V: Point3d, List: [Point3d], Range: Int) -> Bool {
     var c = 0
     if List == [] {
         return false }

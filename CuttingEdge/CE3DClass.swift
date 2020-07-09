@@ -37,14 +37,14 @@ let LIGHTX: Float = 1000
 let LIGHTY: Float = 100
 let LIGHTZ: Float = 4
 
-let EMPTYVECTOR = simd_make_float4(0)
-let EMPTYXVECTOR = simd_make_float4(1, 0, 0, 0)
-let EMPTYYVECTOR = simd_make_float4(0, 1, 0, 0)
-let EMPTYZVECTOR = simd_make_float4(0, 0, 1, 0)
-let BLANK_VECTOR = simd_make_float4(0, 0, 0, 1)
 
-let IDENTITY_MATRIX = float4x4(EMPTYXVECTOR, EMPTYYVECTOR, EMPTYZVECTOR, BLANK_VECTOR)
-let EMPTY_MATRIX = float4x4(EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR, EMPTYVECTOR)
+let EMPTYXVECTOR = simd_float4(1, 0, 0, 0)
+let EMPTYYVECTOR = simd_float4(0, 1, 0, 0)
+let EMPTYZVECTOR = simd_float4(0, 0, 1, 0)
+let BLANK_VECTOR = simd_float4(0, 0, 0, 1)
+
+let IDENTITY_MATRIX = float4x4(1)
+let EMPTY_MATRIX = float4x4(0)
 
 //************************
 //Cutting Edge Constants

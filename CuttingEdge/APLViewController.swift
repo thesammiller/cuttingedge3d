@@ -29,8 +29,8 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //create the metal device
         device = MTLCreateSystemDefaultDevice()
-        
         
         //this frame thing is an issue... a bad hack for now.
         mtkView = MTKView(frame: NSMakeRect(0, 0, CGFloat(WIDTH*2), CGFloat(HEIGHT*2)))

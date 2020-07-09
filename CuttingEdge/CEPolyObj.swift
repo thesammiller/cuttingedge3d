@@ -77,22 +77,18 @@ public class PanelObject {
         
         //for each panel in the List
         for p in PList {
-            // if the object is not invisible
+            
+            // if the object is not already invisible
             if p.Invis == 0 {
-                //caluclate whether it is visible in 3d space
+                
+                //check whether it is visible in 3d space
                 if p.CalcVisible3d() == 1 {
+                    //Clip
                     p.Project()
+                    //Rasterize to screen coordinates
                     p.Rasterize()
-                    for l in p.VPoint {
-                        
-                        //This data could already go to metal
-                        data.append(simd_make_float3(l.local))
-                        
-                        
-                    }
                     
-                    p.Project()
-                    //print("Projected displayed...")
+                    //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
                         data.append(p.Display())
                         print("Poly displayed") } 

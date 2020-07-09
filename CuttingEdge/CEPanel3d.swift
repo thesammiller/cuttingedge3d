@@ -14,7 +14,7 @@ let CEIL_FRACT = Float(1)
 
 // CLIP A HORIZONTAL Z-BUFFERED LINE
 func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
-    var f: simd_float4 = simd_make_float4(0)
+    var  f = simd_float4(0)
     var x1, x2, z, zstep: Float
     x1 = X1
     x2 = X2
@@ -209,43 +209,24 @@ extension Panel3d {
 
 extension Panel3d {
     
-    public func ResetCalc2dData() {
-        self.XMinInVis = 0 // < MinX -- left bound
-        self.XMaxInVis = 0 // > MaxX -- right bound
-        self.YMinInVis = 0 // < MinY -- lower bound
-        self.YMaxInVis = 0 // > MaxY -- upper bound
-        
-        self.Visible = 1
-        self.AveX = 0
-        self.AveY = 0
-        
-    }
-    
-    
-    //CLIPS AND PROJECTS
     //CLIPS THE 3D POINTS BASED ON MINZ
-    
     //creates the values for SPoint array --> 2d projections
     //this will all have to be revised to Metal's 2D coordinate system
     //COMBINED CLIPPING AND PROJECTION FUNCTION
     //CAN I UNCOMBINE?
     func Project() {
         //perform front Z-clippng and project the panel's 3d points onto the screen
-        SPCount = VPoint.count-1
-        
-        //holds the number of screen project points
-        var OutCount: Int = 0 // equivalent to ZClipPoint.count?
-        var StartI = Int(SPCount - 1)
+
+        var StartI = VPoint.count-2
         
         //loop through all edges of panel using Sutherland-Hodgman algorithm
-        for EndI in 0...SPCount {
+        for EndI in 0...VPoint.count-1 {
             
             if (VPoint[StartI].world[z] >= MINZ ) {
                 
                 //CASE 1 --> WHOLE LINE VISIBLE, APPEND POINT AS IS
                 if (VPoint[EndI].world[z] >= MINZ) {
                     ZClipPoint.append(VPoint[EndI])
-                    OutCount += 1
                 
                 //CASE 2 --> EDGE IS LEAVING BOUNDARY, WE JUST NEED THE INTERSECTION POINT WITH MINZ (IN 3D SPACE)
                 } else {
@@ -265,14 +246,13 @@ extension Panel3d {
                     newPoint.world[z] = MINZ
                     
                     ZClipPoint.append(newPoint)
-                        
-                    OutCount += 1
                 }
-                //CASE 3 -->
             }
+            
             //STARTI is OUT OF BOUNDS --> WE NEED TO ADD TWO POINTS OR NO POINTS
             //EITHER ENDI IS ALSO OUT OR IT IS IN
             else {
+                    //CASE 3 --> Add an original point and a clipped point
                     if (VPoint[EndI].world[z] >= MINZ) {
                         let newPoint = Point3d()
                         var DeltaZ: Float
@@ -288,11 +268,9 @@ extension Panel3d {
                         
                         //add the new STARTING POINT
                         ZClipPoint.append(newPoint)
-                        OutCount += 1
                         
                         //Add the original END POINT (since it's greater than MINZ)
                         ZClipPoint.append(VPoint[EndI])
-                        OutCount += 1
                     } else {
                         // entire vertex out of frame, nothing to project
                     }
@@ -301,20 +279,15 @@ extension Panel3d {
             StartI = EndI
         }
         
-        //Store the number of vertices in outcount
-        SPCount = OutCount
-        //print(ZClipPoint)
     }
     
-    
-    //Load up the Screen Points
-    
+    //SCREEN PROJECTION
+    //Load up the Screen Points parameter SPoints
     func Rasterize() {
-        let OutCount = SPCount
         var OneOverZ: Float
         
         //Project panel points
-        for Count in 0...OutCount-1 {
+        for Count in 0...ZClipPoint.count-1 {
             //calculate 1/z for vector normalization
             OneOverZ = Float(1)/ZClipPoint[Count].world[z]
             
@@ -331,22 +304,14 @@ extension Panel3d {
             SPoint[Count].Z = OneOverZ
             
         }
-        print(SPCount)
-        //returns nothing,
-        //need to reset ZClipCount here
-        
+        //reset ZClipPoint count for next loop
         for _ in 0...ZClipPoint.count {
             ZClipPoint.popLast()
         }
-        
-        
     }
-    
-    
-    
+
     func CalcVisible3d() -> Float {
         //perform 3d culling
-        
         //assume panel is visible
         var Visible: Float = 1
         
@@ -374,14 +339,24 @@ extension Panel3d {
         
     }
     
-    
+    public func ResetCalc2dData() {
+        self.XMinInVis = 0 // < MinX -- left bound
+        self.XMaxInVis = 0 // > MaxX -- right bound
+        self.YMinInVis = 0 // < MinY -- lower bound
+        self.YMaxInVis = 0 // > MaxY -- upper bound
+        
+        self.Visible = 1
+        self.AveX = 0
+        self.AveY = 0
+        
+    }
     
     func CalcVisible2d() -> Int {
         // perform 2d culling
         ResetCalc2dData()
         
         // make sure the panel has more than two points --> not just a line!
-        if (SPCount < 3) {
+        if (SPoint.count < 3) {
             //if not, flag panel as invisible
             Visible = 0
             // Assume Panel will remain Invisible for four more frames
@@ -509,8 +484,12 @@ extension Panel3d {
         return Visible
     }
     
+    
+    
     func Display() -> simd_float3 {
         // could this entire function be shortcut by Metal? Yes.
+        //but for right now, I'd like to have CUTTING EDGE output 2D Points
+        //and then METAL can render the 2D points
 
            var RColor: Float // color of the panel
            var DPtr: Float // pointer to the off-screen buffer (!)
