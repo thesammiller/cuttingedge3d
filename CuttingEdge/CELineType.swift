@@ -88,7 +88,9 @@ class CeilLine {
         if (Y<Top) {
             if (h > 0) {
             Step = Top - Y
+            //calculate the slope ratio
             SlopeX = X2-X1 / h
+            //clip the X value
             X = X1 + SlopeX * Step
             Y = Top
             Z += StepZ * Step

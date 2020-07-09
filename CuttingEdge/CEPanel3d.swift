@@ -362,25 +362,46 @@ extension Panel3d {
     }
     
     func Display() -> simd_float3 {
-        // could this entire function be shortcut by Metal? Yes.
-        //but for right now, I'd like to have CUTTING EDGE output 2D Points
-        //and then METAL can render the 2D points
-
-        var RColor: Float // color of the panel
-        //var DPtr: Float // pointer to the off-screen buffer (!)
-        //var ZPtr: [Float] // Zbuffer ptr
-           
+        
+        // color of the panel
+        var RColor: Float
+        
+        
+        //Used for interpolating values along left/right of polygon
         var LeftSeg = CeilLine()
         var RightSeg = CeilLine() // used for interpolating values along sides
-           
-        var  Height,  Width, XStart, XEnd, DeltaZ, ZStep, Z: Float
-        var YIndex, RightPos, LeftPos, Top, EdgeCount, NewRightPos, NewLeftPos: Int
-        Top = 0
         
+        //Index into SPoint -> Point Closest to the Top of Screen
+        var Top: Int
+        //Index into SPoint -- Top Right Edge, Top Left Edge
+        var RightPos, LeftPos: Int
+        //Index bottom of right edge boottom of left edge
+        var NewRightPos, NewLeftPos: Int
+        
+        //Trapezoid Height
+        var  Height: Float
+        //Number of edges we've left to rasterize
+        var EdgeCount: Int
+        
+        //Left side of the current row
+        var XStart: Float
+        //Right side of the current row
+        var XEnd: Float
+        //Used with 1/Z for increment of interpolation
+        var DeltaZ: Float
+        //actual 1/z step used in interpolation process
+        var ZStep: Float
+        
+        //unexplained for now...
+        var  Width, Z: Float
+        
+        //Initialize Top
+        Top = 0
+        //Set Color
+        RColor = Color
         //clear the ZBuffer --> will revisit this if it proves to be a bottleneck
         ZBuffer = [:]
-        
-        RColor = Color
+        //set edgecount to the number of vertices in the clipped/projected 3d panel
         EdgeCount = SPoint.count
            
         //STEP 1: FIND THE TOP OF THE PANEL
