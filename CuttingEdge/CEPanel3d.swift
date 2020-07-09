@@ -9,11 +9,11 @@
 import MetalKit
 
 // this is << XSTEP_PREC, not sure what it really is doing
-let CEIL_FRACT = 1
+let CEIL_FRACT = Float(1)
 
+
+// CLIP A HORIZONTAL Z-BUFFERED LINE
 func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
-    
-    // Clip a horizontal "Z-buffered" line:
     var f: simd_float4 = simd_make_float4(0)
     var x1, x2, z, zstep: Float
     x1 = X1
@@ -28,9 +28,10 @@ func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
         x1 = MINX
     }
     
+    //if point x1 is greater than the max, x1 becomes the max
     if ( x1 > MAXX ) {
         x1 = MAXX}
-    
+    //if point x2 is less than the min, then x2 becomes the min
     if ( x2 < MINX ) {
         x2 = MINX}
     
@@ -47,10 +48,13 @@ func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
 
 public class Panel3d {
     
-    //points in 3d space
+    //points in 3d space (original points)
     var VPoint: [Point3d] = []
     
-    //points in 2d space (for display)
+    //Clipped Point Array (clipping)
+    var ZClipPoint: [Point3d] = []
+
+    //points in 2d space (for display) (rasterize)
     var SPoint: [Point2d] = []
     var SPCount: Int = 0
     
@@ -58,7 +62,7 @@ public class Panel3d {
     var Radius: Float = 0
     var Normal: Vector = Vector()
     
-    var Invis: Int = 0
+    var Invis: Float = 0
     var Color: Float = 0
     var Padding: Float = 0
     
@@ -70,11 +74,12 @@ public class Panel3d {
     var AveX: Float = 0
     var AveY: Float = 0
     
+    
     init (Verteces: [Point3d]) {
         self.VPoint = Verteces
         self.CalcRadius()
         self.CalcNormal()
-        self.CalcInten()
+        self.CalcFloaten()
     }
     
     func HasVert(P: Point3d) -> Bool {
@@ -134,7 +139,7 @@ extension Panel3d {
         
     }
         
-    func CalcInten() {
+    func CalcFloaten() {
         var Mag: Float
         Mag = sqrt(Light.X * Light.X +
             Light.Y * Light.Y +
@@ -204,92 +209,134 @@ extension Panel3d {
 
 extension Panel3d {
     
+    public func ResetCalc2dData() {
+        self.XMinInVis = 0 // < MinX -- left bound
+        self.XMaxInVis = 0 // > MaxX -- right bound
+        self.YMinInVis = 0 // < MinY -- lower bound
+        self.YMaxInVis = 0 // > MaxY -- upper bound
+        
+        self.Visible = 1
+        self.AveX = 0
+        self.AveY = 0
+        
+    }
+    
+    
+    //CLIPS AND PROJECTS
+    //CLIPS THE 3D POINTS BASED ON MINZ
+    
     //creates the values for SPoint array --> 2d projections
     //this will all have to be revised to Metal's 2D coordinate system
+    //COMBINED CLIPPING AND PROJECTION FUNCTION
+    //CAN I UNCOMBINE?
     func Project() {
-        SPCount = 3
-        var OutCount: Int = 0
-        var OneOverZ: Float
-        var ZClipPoint: [Point3d] = []
+        //perform front Z-clippng and project the panel's 3d points onto the screen
+        SPCount = VPoint.count-1
         
+        //holds the number of screen project points
+        var OutCount: Int = 0 // equivalent to ZClipPoint.count?
         var StartI = Int(SPCount - 1)
-            
-        //for indexing ease
-            
+        
+        //loop through all edges of panel using Sutherland-Hodgman algorithm
         for EndI in 0...SPCount {
+            
             if (VPoint[StartI].world[z] >= MINZ ) {
+                
+                //CASE 1 --> WHOLE LINE VISIBLE, APPEND POINT AS IS
                 if (VPoint[EndI].world[z] >= MINZ) {
-                    //entirely inside front view volume
-                    //output an unchanged vertex
-                    var newPoint = Point3d()
-                    newPoint.world = VPoint[EndI].world
-                    ZClipPoint.append(newPoint)
-                    
+                    ZClipPoint.append(VPoint[EndI])
                     OutCount += 1
+                
+                //CASE 2 --> EDGE IS LEAVING BOUNDARY, WE JUST NEED THE INTERSECTION POINT WITH MINZ (IN 3D SPACE)
                 } else {
-                    //SPoint is leaving view volume
-                    // clip using parametric form of line
+                    let newPoint = Point3d()
                     var DeltaZ: Float
                     DeltaZ = (VPoint[EndI].world[z] - VPoint[StartI].world[z])
+                    
+                    //parametric percentage of line that breaks boundary
                     var t: Float
                     t = (MINZ - VPoint[StartI].world[z])/DeltaZ
                     
-                    ZClipPoint[OutCount].world[x] = VPoint[StartI].world[x] + (VPoint[EndI].world[x] - VPoint[StartI].world[x]) * t
-                    ZClipPoint[OutCount].world[y] = VPoint[StartI].world[y] + (VPoint[EndI].world[y] - VPoint[StartI].world[y]) * t
-                    ZClipPoint[OutCount].world[z] = MINZ
+                    //CLIP THE X AND Y BY THE PERCENTAGE
+                    //see De Goes p. 170
+                    newPoint.world[x] = VPoint[StartI].world[x] + (VPoint[EndI].world[x] - VPoint[StartI].world[x]) * t
+                    newPoint.world[y] = VPoint[StartI].world[y] + (VPoint[EndI].world[y] - VPoint[StartI].world[y]) * t
+                    //BECAUSE WE CROSSED Z BOUNDARY Z = MINZ
+                    newPoint.world[z] = MINZ
+                    
+                    ZClipPoint.append(newPoint)
                         
-                        //update index
                     OutCount += 1
                 }
-            } else {
+                //CASE 3 -->
+            }
+            //STARTI is OUT OF BOUNDS --> WE NEED TO ADD TWO POINTS OR NO POINTS
+            //EITHER ENDI IS ALSO OUT OR IT IS IN
+            else {
                     if (VPoint[EndI].world[z] >= MINZ) {
-                        //Spoint is entering view volume
-                        // clip using parametric form of line
+                        let newPoint = Point3d()
                         var DeltaZ: Float
+                        
+                        //SPoint is entering view volume - clip
                         DeltaZ = (VPoint[EndI].world[z] - VPoint[StartI].world[z])
                         var t: Float
                         t = (MINZ - VPoint[StartI].world[z]) / DeltaZ
                         
-                        ZClipPoint[OutCount].world[x] = VPoint[StartI].world[x] + (VPoint[EndI].world[x] - VPoint[StartI].world[x]) * t
-                        ZClipPoint[OutCount].world[y] = VPoint[StartI].world[y] + (VPoint[EndI].world[y] - VPoint[StartI].world[y]) * t
-                        ZClipPoint[OutCount].world[z] = MINZ
+                        newPoint.world[x] = VPoint[StartI].world[x] + (VPoint[EndI].world[x] - VPoint[StartI].world[x]) * t
+                        newPoint.world[y] = VPoint[StartI].world[y] + (VPoint[EndI].world[y] - VPoint[StartI].world[y]) * t
+                        newPoint.world[z] = MINZ
                         
+                        //add the new STARTING POINT
+                        ZClipPoint.append(newPoint)
                         OutCount += 1
                         
-                        //Add an extra edge to the list
-                        ZClipPoint[OutCount].world = VPoint[EndI].world
-                        
+                        //Add the original END POINT (since it's greater than MINZ)
+                        ZClipPoint.append(VPoint[EndI])
                         OutCount += 1
                     } else {
-                        // case 4 in the book... nothing to do
+                        // entire vertex out of frame, nothing to project
                     }
                 }
             //advance to next vertex
             StartI = EndI
-            }
+        }
         
         //Store the number of vertices in outcount
         SPCount = OutCount
+        //print(ZClipPoint)
+    }
+    
+    
+    //Load up the Screen Points
+    
+    func Rasterize() {
+        let OutCount = SPCount
+        var OneOverZ: Float
         
         //Project panel points
         for Count in 0...OutCount-1 {
             //calculate 1/z for vector normalization
             OneOverZ = Float(1)/ZClipPoint[Count].world[z]
             
-            var zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
+            let zclip = OneOverZ * Float(XSCALE) * ZClipPoint[Count].world[z]
             
-            var newPoint = Point2d()
-            newPoint.X = Int(zclip) + (WIDTH/2)
-            newPoint.Y = Int(zclip) + (HEIGHT/2)
-            SPoint.append(newPoint)
+            var screenPoint = Point2d()
+            screenPoint.X = zclip + Float(WIDTH)/2.0
+            screenPoint.Y = zclip + Float(HEIGHT)/2.0
+            SPoint.append(screenPoint)
             
             //print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
             
-            // this right now multiplies to 1 --> will need to return to logic --> MOSTLY ZERO!!
-            SPoint[Count].Z = Int(OneOverZ * Float((1 * ZSTEP_PREC))) // C++ uses 1 << bit shift
+            //NOT SURE WHAT TO DO FOR LOGIC HERE
+            SPoint[Count].Z = OneOverZ
             
-            //need to learn about the zbuffer for this i think
-            
+        }
+        print(SPCount)
+        //returns nothing,
+        //need to reset ZClipCount here
+        
+        for _ in 0...ZClipPoint.count {
+            ZClipPoint.popLast()
         }
         
         
@@ -297,11 +344,11 @@ extension Panel3d {
     
     
     
-    func CalcVisible3d() -> Int {
+    func CalcVisible3d() -> Float {
         //perform 3d culling
         
         //assume panel is visible
-        var Visible: Int = 1
+        var Visible: Float = 1
         
         Visible = CalcBFace()
         
@@ -327,17 +374,7 @@ extension Panel3d {
         
     }
     
-    public func ResetCalc2dData() {
-        self.XMinInVis = 0 // < MinX -- left bound
-        self.XMaxInVis = 0 // > MaxX -- right bound
-        self.YMinInVis = 0 // < MinY -- lower bound
-        self.YMaxInVis = 0 // > MaxY -- upper bound
-        
-        self.Visible = 1
-        self.AveX = 0
-        self.AveY = 0
-        
-    }
+    
     
     func CalcVisible2d() -> Int {
         // perform 2d culling
@@ -378,13 +415,13 @@ extension Panel3d {
             print("XMinInVis")
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
             AveX /= Float(SPCount)
-            Invis = Int(abs(AveX)/(Float(WIDTH)*26))
+            Invis = Float(abs(AveX)/(Float(WIDTH)*26))
             Visible = 0
         }
         if (YMinInVis >= SPCount) {
             debugMsg("YMinInVis")
             AveY /= Float(SPCount)
-            Invis = Int(abs(AveY)*(Float(HEIGHT)*26))
+            Invis = Float(abs(AveY)*(Float(HEIGHT)*26))
             
             Visible = 0
             }
@@ -394,14 +431,14 @@ extension Panel3d {
             AveX /= Float(SPCount)
             let num = (AveX-Float(MAXX))
             let den = Float(WIDTH*26)
-            Invis = Int( num/den )
+            Invis = Float( num/den )
             Visible = 0
         }
         if (YMaxInVis >= SPCount) {
             AveY/=Float(SPCount)
             let num = (AveY-Float(MAXY))
             let den = Float(HEIGHT*26)
-            Invis = Int(num/den)
+            Invis = Float(num/den)
             Visible = 0
             print(AveY, SPCount, num, den, Invis)
         }
@@ -409,9 +446,9 @@ extension Panel3d {
         return Visible
     }
     
-    func CheckExtents() -> Int {
+    func CheckExtents() -> Float {
         
-        var Visible: Int = 0
+        var Visible: Float = 0
         var MinZ: Float
         
         // PROBLEM HERE IS THAT COUNT.WORLD[Z} is ALWAYS ZERO
@@ -436,12 +473,12 @@ extension Panel3d {
                 // set the invisible flag for this frame
                 Visible = 0
                 // assume panel will remain invisible for time proportional
-                Invis = Int((MinZ-MAXZ)/50)
+                Invis = Float((MinZ-MAXZ)/50)
             }
         }
         else {
             //make invisible
-            Invis = Int((abs(CalcCenterZ()))/50)
+            Invis = Float((abs(CalcCenterZ()))/50)
         }
         
         return Visible
@@ -449,10 +486,10 @@ extension Panel3d {
 
     
     
-    func CalcBFace() -> Int {
+    func CalcBFace() -> Float {
         //determine if polygon is a backface
-        var Visible: Int = 1
-        var Invis: Int = 0
+        var Visible: Float = 1
+        var Invis: Float = 0
         var Direction: Float
         
         var V: Point3d = self.VPoint[0]
@@ -465,7 +502,7 @@ extension Panel3d {
             //get the cosine of the angle between the viewer and the polygon normal
             Direction /= V.Mag()
             //assume panel will remain time proportional to the angle between the viewer to the normal
-            Invis = Int(Direction * Float(25))
+            Invis = Float(Direction * Float(25))
             Visible = 0
             
         }
@@ -476,13 +513,14 @@ extension Panel3d {
         // could this entire function be shortcut by Metal? Yes.
 
            var RColor: Float // color of the panel
-           var DPtr: Int // pointer to the off-screen buffer (!)
-           var ZPtr: Int // Zbuffer ptr
+           var DPtr: Float // pointer to the off-screen buffer (!)
+           var ZPtr: Float // Zbuffer ptr
            
            var LeftSeg: CeilLine = CeilLine()
            var RightSeg: CeilLine = CeilLine() // used for interpolating values along sides
            
-           var Top, RightPos, LeftPos, NewRightPos, NewLeftPos, Height, EdgeCount, YIndex, Width, XStart, XEnd, DeltaZ, ZStep, Z: Int
+           var  Height,  Width, XStart, XEnd, DeltaZ, ZStep, Z: Float
+           var YIndex, RightPos, LeftPos, Top, EdgeCount, NewRightPos, NewLeftPos: Int
            Top = 0
            
            RColor = Color
@@ -515,7 +553,7 @@ extension Panel3d {
                    //(if necessary)
                    if (RightSeg.GetY() < MINY) {
                        RightSeg.ClipTop(MINY)
-                       YIndex = MINY * WIDTH
+                       YIndex = Int(MINY * WIDTH)
                        print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
                    }
                }
@@ -531,7 +569,7 @@ extension Panel3d {
                    // perform object precision clip if neccessary
                    if (LeftSeg.GetY() < MINY) {
                        LeftSeg.ClipTop(MINY)
-                       YIndex = MINY * WIDTH
+                    YIndex = Int(MINY * WIDTH)
                    }
                }
                
@@ -562,12 +600,12 @@ extension Panel3d {
                        ZStep = DeltaZ / Width
                        
                        //Clip the scan line
-                       var f: simd_int4
+                       var f: simd_float4
                        f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
-                       XStart = Int(f[0])
-                       XEnd = Int(f[1])
-                       Z = Int(f[2])
-                       ZStep = Int(f[3])
+                       XStart = Float(f[0])
+                       XEnd = Float(f[1])
+                       Z = Float(f[2])
+                       ZStep = Float(f[3])
                        Width = XEnd - XStart
                        
                        //DPtr = Dest[YIndex + XStart]
@@ -578,7 +616,7 @@ extension Panel3d {
                        
                        let X = Float(Width)
                        let Y = Float(Height)
-                       ZPtr = ZBuffer[YIndex + XStart]
+                       ZPtr = ZBuffer[YIndex + Int(XStart)]
                        
                        
                        vCount += 1
@@ -590,7 +628,7 @@ extension Panel3d {
                            Width -= 1
                            if (ZPtr < Z) {
                                ZPtr = Z
-                               DPtr = (Z >> 18) // bit shift
+                               //DPtr = (Z >> 18) // bit shift
                            }
                            Z += ZStep
                            //DPtr += 1

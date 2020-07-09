@@ -30,9 +30,9 @@ public class PanelObject {
     var TList: [Point3d] = []
     var VList: [Point3d] = []
     var PList: [Panel3d] = []
-    var PCount: Int = 0
-    var VCount: Int = 0
-    var Visible: Int = 0
+    var PCount: Float = 0
+    var VCount: Float = 0
+    var Visible: Float = 0
     var Radius: Float = 0
     
     
@@ -81,7 +81,8 @@ public class PanelObject {
             if p.Invis == 0 {
                 //caluclate whether it is visible in 3d space
                 if p.CalcVisible3d() == 1 {
-                    //p.Project()
+                    p.Project()
+                    p.Rasterize()
                     for l in p.VPoint {
                         
                         //This data could already go to metal

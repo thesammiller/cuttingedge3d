@@ -13,7 +13,7 @@ public class Matrix3d {
     
     var Matrix: float4x4
     var RMatrix: float4x4
-    var Xr, Zr, Yr: Int
+    var Xr, Zr, Yr: Float
     var XTrans, YTrans, ZTrans: Float
 
     init(_ M: float4x4) {
@@ -57,7 +57,7 @@ public class Matrix3d {
     
     //func MTLRotate --> COULD WE KEEP LUT in the GPU???
     
-    func Rotate(_ Xa: Int, _ Ya: Int, _ Za: Int) {
+    func Rotate(_ Xa: Float, _ Ya: Float, _ Za: Float) {
         Xr = Xa
         Yr = Ya
         Zr = Za

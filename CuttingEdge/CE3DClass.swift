@@ -58,8 +58,8 @@ let MINX = Float(-1000.0)
 let MAXX = Float(1000.0)
 let MINY = Float(-1000.0)
 let MAXY = Float(1000.0)
-let WIDTH = 320
-let HEIGHT = 200
+let WIDTH = Float(320)
+let HEIGHT = Float(200)
 let XCENTER = 160
 let YCENTER = 100
 let MINZ = Float(100.0)
@@ -68,8 +68,8 @@ let XSCALE = 120
 let YSCALE = -120
 
 //BUFFER VARIABLE???? What does ZBuffer do?
-var ZBuffer: [Int] = []
-var ZTrans: Int = 0
+var ZBuffer: [Float] = []
+var ZTrans: Float = 0
 
 var CosTable: [Float] = []
 var SinTable: [Float] = []

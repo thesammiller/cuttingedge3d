@@ -32,7 +32,7 @@ class ViewController: NSViewController {
         device = MTLCreateSystemDefaultDevice()
         
         mtkView = MTKView()
-        mtkView.translatesAutoresizingMaskIntoConstraints = false
+        //mtkView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(mtkView)
         
         view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "|[mtkView]|", options: [], metrics: nil, views: ["mtkView" : mtkView]))

@@ -22,7 +22,7 @@ public var device: MTLDevice!
 public var vertexBuffer: MTLBuffer!
 public var pipelineState: MTLRenderPipelineState!
 public var commandQueue: MTLCommandQueue!
-public var vCount: Int = 0
+public var vCount: Float = 0
 public var library: MTLLibrary?
 
 public var VertexData: [simd_float3] = []
@@ -35,7 +35,7 @@ class Renderer: NSObject, MTKViewDelegate {
         1, -1, 0,
     ]
     
-    var indices: [UInt16] = [
+    var indices: [UFloat16] = [
         0, 1, 2] */
     
     //var indexBuffer: MTLBuffer!

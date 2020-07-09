@@ -13,12 +13,12 @@ import Foundation
 
 var StartTime: clock_t = clock()
 var EndTime: clock_t = clock()
-var FrameCount: Int = 0
+var FrameCount: Float = 0
 
 
 public class CEView {
     
-    var XRot, YRot, ZRot: Int
+    var XRot, YRot, ZRot: Float
     var ZPos: Float
     
     
@@ -43,7 +43,7 @@ func UpdatePos(V: CEView) {
     
     if MouseClick {
         V.ZPos -= Y * Float(3)
-        V.YRot += Int(X)
+        V.YRot += Float(X)
     }
 }
 
@@ -82,7 +82,7 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     V.Clear()
     
     ZTrans += 1
-    if (FrameCount % Int(MaxWait) == 0) {
+    if (FrameCount / Float(MaxWait) == 1) {
         ZTrans = 0
         ZBuffer = []
     }

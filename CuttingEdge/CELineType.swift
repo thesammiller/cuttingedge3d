@@ -10,13 +10,13 @@ let XSTEP_PREC = 10 //used for bitshifting... not sure how that will work here
 let ZSTEP_PREC = 100
 
 class CeilLine {
-    var X1, X2, Y1, Y2: Int
-    var X, StepX, StepZ, Z: Int
-    var EdgeHeight, Y: Int
+    var X1, X2, Y1, Y2: Float
+    var X, StepX, StepZ, Z: Float
+    var EdgeHeight, Y: Float
     
     init (P1: Point2d = Point2d(), P2: Point2d = Point2d()) {
         
-        var FWidth, DeltaZ, Z1, Z2: Int
+        var FWidth, DeltaZ, Z1, Z2: Float
         
         X1 = P1.X; X2 = P2.X
         Y1 = P1.Y; Y2 = P2.Y
@@ -47,14 +47,14 @@ class CeilLine {
         EdgeHeight -= 1
     }
     
-    func Step(Amount: Int) {
+    func Step(Amount: Float) {
         X += (StepX * Amount)
         Y += (Amount)
         Z += (StepZ * Amount)
         EdgeHeight -= (Amount)
     }
     
-    static func + (left: CeilLine, right: Int) -> Point2d {
+    static func + (left: CeilLine, right: Float) -> Point2d {
         var Temp = Point2d()
         Temp.X = left.X  + (left.StepX * right)
         Temp.Y = left.Y + (right)
@@ -62,25 +62,25 @@ class CeilLine {
         return Temp
     }
     
-    func Height() -> Int {
+    func Height() -> Float {
         return EdgeHeight
     }
     
-    func GetY() -> Int {
+    func GetY() -> Float {
         return Y
     }
     
-    func GetX() -> Int {
+    func GetX() -> Float {
         return X
     }
     
-    func GetZ() -> Int {
+    func GetZ() -> Float {
         return Z
     }
     
-    func ClipTop(_ Top: Int) {
+    func ClipTop(_ Top: Float) {
         var SlopeX: Float
-        var Step, h: Int
+        var Step, h: Float
         
         h = Y2 - Y1
         
@@ -88,7 +88,7 @@ class CeilLine {
             if (h > 0) {
             Step = Top - Y
             SlopeX = Float(X2-X1) / Float(h)
-            X = X1 + Int(SlopeX) * Step + CEIL_FRACT
+            X = X1 + SlopeX * Step + CEIL_FRACT
             Y = Top
             Z += StepZ * Step
             EdgeHeight -= Step
