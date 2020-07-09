@@ -37,6 +37,8 @@ public class PanelObject {
     
     
     init () {
+        //calculate data for the new panel
+        
         
     }
     
@@ -124,33 +126,26 @@ extension PanelObject {
     
     func DXFLoadFaces(_ Lines: [String]) -> [Panel3d] {
         var panelList: [Panel3d] = []
-        var tempPoints: [Point3d]
-        let tempPanel = Panel3d()
+        var newVerts: [Point3d]
         
         //Split Faces into array of string arrays (each string array is a 3d Face (4 points) )
         let SplitFaces = DXFSplitFaces(Lines)
         
         // for each face
         for s in SplitFaces {
-            
-            
+        
             //split the face into an array of string arrays
             if s.count > 1 {
-                tempPoints = DXFLoadPoints(s) }
-            else { tempPoints = [] }
-            if tempPoints.isEmpty {continue}
+                newVerts = DXFLoadPoints(s) }
+            else { continue }
             
-            //print(tempPoints)
-            tempPanel.VPoint = tempPoints
-            
-            //calculate data for the new panel
-            tempPanel.CalcRadius()
-            tempPanel.CalcNormal()
-            tempPanel.CalcInten()
-            
-            panelList.append(tempPanel)
+            //add the new vertices to a new panel
+            let newPanel = Panel3d(Verteces: newVerts)
+            //add each panel to the list
+            panelList.append(newPanel)
         
         }
+        
         return panelList
     }
     

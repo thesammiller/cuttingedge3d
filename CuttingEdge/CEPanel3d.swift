@@ -11,10 +11,11 @@ import MetalKit
 // this is << XSTEP_PREC, not sure what it really is doing
 let CEIL_FRACT = 1
 
-func ClipHLine (X1: Int, X2: Int, Z: Int, ZStep: Int ) -> simd_int4 {
+func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
+    
     // Clip a horizontal "Z-buffered" line:
-    var f: simd_int4 = simd_make_int4(0)
-    var x1, x2, z, zstep: Int
+    var f: simd_float4 = simd_make_float4(0)
+    var x1, x2, z, zstep: Float
     x1 = X1
     x2 = X2
     z = Z
@@ -36,26 +37,30 @@ func ClipHLine (X1: Int, X2: Int, Z: Int, ZStep: Int ) -> simd_int4 {
     if  ( x2 > MAXX ) {
         x2 = MAXX}
         
-    f[0] = Int32(x1)
-    f[1] = Int32(x2)
-    f[2] = Int32(z)
-    f[3] = Int32(zstep)
+    f[0] = x1
+    f[1] = x2
+    f[2] = z
+    f[3] = zstep
     return f
-    }
+}
 
 
 public class Panel3d {
     
+    //points in 3d space
     var VPoint: [Point3d] = []
+    
+    //points in 2d space (for display)
     var SPoint: [Point2d] = []
+    var SPCount: Int = 0
+    
+    //initialized properties
+    var Radius: Float = 0
     var Normal: Vector = Vector()
     
-    var SPCount: Int = 0
     var Invis: Int = 0
     var Color: Float = 0
     var Padding: Float = 0
-    
-    var Radius: Float = 0
     
     var XMinInVis: Int = 0
     var XMaxInVis: Int = 0
@@ -65,17 +70,24 @@ public class Panel3d {
     var AveX: Float = 0
     var AveY: Float = 0
     
-    init () {
+    init (Verteces: [Point3d]) {
+        self.VPoint = Verteces
+        self.CalcRadius()
+        self.CalcNormal()
+        self.CalcInten()
     }
     
     func HasVert(P: Point3d) -> Bool {
         return self.VPoint.contains(P)
     }
     
-    func MTLHasVert(P: Point3d) -> Bool {
-        //I'd think that a true/false like this would be embarrassingly parallel
-        print("Panel3d -> MTLHasVert not implemented.")
-        return false
+    func Update(M: Matrix3d) {
+        
+        M.Transform(Normal)
+        
+        if (Invis > 0) {
+            Invis -= 1
+        }
     }
     
 }
@@ -122,11 +134,6 @@ extension Panel3d {
         
     }
         
-    func MTLCalcRadius() {
-        print("Panel3d -> MTLCalcRadius not implemented.")
-        print("But it might be pretty cool when it is.")
-    }
-        
     func CalcInten() {
         var Mag: Float
         Mag = sqrt(Light.X * Light.X +
@@ -140,9 +147,65 @@ extension Panel3d {
             
         Color = CosA * Float(COLOR_RANGE) + Float(COLOR_START)
     }
+    
+    func CalcNormal() {
+        var X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, Distance, A, B, C: Float
+        var UniqueVerts: [Point3d] = []
+        var Range: Int = 0
         
+        for Count in VPoint {
+            if (Range == 0) {
+                UniqueVerts.append(Count)
+                Range+=1
+            } else {
+                if UniqueVert(V: Count, List: UniqueVerts, Range: Range) {
+                    UniqueVerts.append(Count)
+                    Range += 1
+                }
+            }
+        }
+        
+        X1 = UniqueVerts[0].local[x]
+        Y1 = UniqueVerts[0].local[y]
+        Z1 = UniqueVerts[0].local[z]
+        
+        X2 = UniqueVerts[1].local[x]
+        Y2 = UniqueVerts[1].local[y]
+        Z2 = UniqueVerts[1].local[z]
+        
+        X3 = UniqueVerts[2].local[x]
+        Y3 = UniqueVerts[2].local[y]
+        Z3 = UniqueVerts[2].local[z]
+        
+        //use plane equation to determine plane orientation
+        A = Y1 * (Z2-Z3) + Y2 * (Z3-Z1) + Y3 * (Z1-Z2)
+        B = Z1 * (X2-X3) + Z2 * (X3-X1) + Z3 + (X1-X2)
+        C = X1 * (Y2-Y3) + X2 * (Y3-Y1) + X3 * (Y1-Y2)
+        
+        //Get the distance to the vector
+        Distance = sqrt(A*A + B*B + C*C)
+        
+        //Normalize the normal to 1 and create a point
+        Normal.direction[x] = (A/Distance) + self.VPoint[0].local[x]
+        Normal.direction[y] = (B/Distance) + self.VPoint[0].local[y]
+        Normal.direction[z] = (C/Distance) + self.VPoint[0].local[z]
+        
+    }
+    
+    
+    
+    
+}
+
+
+//********************************************
+//**** CLIPPING
+//*********************************************
+
+extension Panel3d {
     
     //creates the values for SPoint array --> 2d projections
+    //this will all have to be revised to Metal's 2D coordinate system
     func Project() {
         SPCount = 3
         var OutCount: Int = 0
@@ -220,7 +283,6 @@ extension Panel3d {
             newPoint.Y = Int(zclip) + (HEIGHT/2)
             SPoint.append(newPoint)
             
-            
             //print("Hard coded data Panel3d -> SPoint for 2D Projected Point.")
             
             // this right now multiplies to 1 --> will need to return to logic --> MOSTLY ZERO!!
@@ -228,78 +290,12 @@ extension Panel3d {
             
             //need to learn about the zbuffer for this i think
             
-            
         }
         
         
     }
     
-    func CalcNormal() {
-        var X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, Distance, A, B, C: Float
-        var UniqueVerts: [Point3d] = []
-        var Range: Int = 0
-        
-        for Count in VPoint {
-            if (Range == 0) {
-                UniqueVerts.append(Count)
-                Range+=1
-            } else {
-                if UniqueVert(V: Count, List: UniqueVerts, Range: Range) {
-                    UniqueVerts.append(Count)
-                    Range += 1
-                }
-            }
-        }
-        
-        X1 = UniqueVerts[0].local[x]
-        Y1 = UniqueVerts[0].local[y]
-        Z1 = UniqueVerts[0].local[z]
-        
-        X2 = UniqueVerts[1].local[x]
-        Y2 = UniqueVerts[1].local[y]
-        Z2 = UniqueVerts[1].local[z]
-        
-        X3 = UniqueVerts[2].local[x]
-        Y3 = UniqueVerts[2].local[y]
-        Z3 = UniqueVerts[2].local[z]
-        
-        //use plane equation to determine plane orientation
-        A = Y1 * (Z2-Z3) + Y2 * (Z3-Z1) + Y3 * (Z1-Z2)
-        B = Z1 * (X2-X3) + Z2 * (X3-X1) + Z3 + (X1-X2)
-        C = X1 * (Y2-Y3) + X2 * (Y3-Y1) + X3 * (Y1-Y2)
-        
-        //Get the distance to the vector
-        Distance = sqrt(A*A + B*B + C*C)
-        
-        //Normalize the normal to 1 and create a point
-        Normal.direction[x] = (A/Distance) + self.VPoint[0].local[x]
-        Normal.direction[y] = (B/Distance) + self.VPoint[0].local[y]
-        Normal.direction[z] = (C/Distance) + self.VPoint[0].local[z]
-        
-    }
     
-    func CalcBFace() -> Int {
-        //determine if polygon is a backface
-        var Visible: Int = 1
-        var Invis: Int = 0
-        var Direction: Float
-        
-        var V: Point3d = self.VPoint[0]
-        
-        Direction = V.world[x] * (Normal.transformed[x] - VPoint[0].world[x]) +
-        V.world[y] * (Normal.transformed[y] - VPoint[0].world[y]) +
-        V.world[z] * (Normal.transformed[z] - VPoint[0].world[z])
-        
-        if Direction > Float(0) {
-            //get the cosine of the angle between the viewer and the polygon normal
-            Direction /= V.Mag()
-            //assume panel will remain time proportional to the angle between the viewer to the normal
-            Invis = Int(Direction * Float(25))
-            Visible = 0
-            
-        }
-        return Visible
-    }
     
     func CalcVisible3d() -> Int {
         //perform 3d culling
@@ -451,13 +447,29 @@ extension Panel3d {
         return Visible
     }
 
-    func Update(M: Matrix3d) {
+    
+    
+    func CalcBFace() -> Int {
+        //determine if polygon is a backface
+        var Visible: Int = 1
+        var Invis: Int = 0
+        var Direction: Float
         
-        M.Transform(Normal)
+        var V: Point3d = self.VPoint[0]
         
-        if (Invis > 0) {
-            Invis -= 1
+        Direction = V.world[x] * (Normal.transformed[x] - VPoint[0].world[x]) +
+        V.world[y] * (Normal.transformed[y] - VPoint[0].world[y]) +
+        V.world[z] * (Normal.transformed[z] - VPoint[0].world[z])
+        
+        if Direction > Float(0) {
+            //get the cosine of the angle between the viewer and the polygon normal
+            Direction /= V.Mag()
+            //assume panel will remain time proportional to the angle between the viewer to the normal
+            Invis = Int(Direction * Float(25))
+            Visible = 0
+            
         }
+        return Visible
     }
     
     func Display() -> simd_float3 {
