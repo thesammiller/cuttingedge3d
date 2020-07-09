@@ -67,8 +67,9 @@ let MAXZ = Float(2000.0)
 let XSCALE = Float(120)
 let YSCALE = Float(-120)
 
-//BUFFER VARIABLE???? What does ZBuffer do?
-var ZBuffer: [Float] = []
+//ZBuffer is the Dictionary we use to look up Points to find its location relative to Z Value
+//Used in Panel Buffer
+var ZBuffer: [simd_float2: Float] = [:]
 var ZTrans: Float = 0
 
 var CosTable: [Float] = []

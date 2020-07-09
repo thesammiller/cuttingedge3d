@@ -8,44 +8,6 @@
 
 import MetalKit
 
-// this is << XSTEP_PREC, not sure what it really is doing
-let CEIL_FRACT = Float(1)
-
-
-// CLIP A HORIZONTAL Z-BUFFERED LINE
-func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
-    var  f = simd_float4(0)
-    var x1, x2, z, zstep: Float
-    x1 = X1
-    x2 = X2
-    z = Z
-    zstep = ZStep
-    
-    if ( x1 < MINX ) {
-           // Take advantage of the fact that ( a * ( b * f ) / f )
-           // is equal to ( a * b );
-        z += zstep * ( MINX - x1 )
-        x1 = MINX
-    }
-    
-    //if point x1 is greater than the max, x1 becomes the max
-    if ( x1 > MAXX ) {
-        x1 = MAXX}
-    //if point x2 is less than the min, then x2 becomes the min
-    if ( x2 < MINX ) {
-        x2 = MINX}
-    
-    if  ( x2 > MAXX ) {
-        x2 = MAXX}
-        
-    f[0] = x1
-    f[1] = x2
-    f[2] = z
-    f[3] = zstep
-    return f
-}
-
-
 public class Panel3d {
     
     //points in 3d space (original points)
@@ -56,7 +18,7 @@ public class Panel3d {
 
     //points in 2d space (for display) (rasterize)
     var SPoint: [Point2d] = []
-    var SPCount: Int = 0
+    //var SPCount: Int = 0 --> replaced by Swift/s SPoint.count
     
     //initialized properties
     var Radius: Float = 0
@@ -73,7 +35,6 @@ public class Panel3d {
     var Visible: Int = 1
     var AveX: Float = 0
     var AveY: Float = 0
-    
     
     init (Verteces: [Point3d]) {
         self.VPoint = Verteces
@@ -196,25 +157,37 @@ extension Panel3d {
         Normal.direction[z] = (C/Distance) + self.VPoint[0].local[z]
         
     }
-    
-    
-    
-    
 }
 
 
-//********************************************
-//**** CLIPPING
-//*********************************************
+//*********************************************************************
+//**** DISPLAY --> CLIP/PROJECT (Functions called in Poly.Display() ***
+//*********************************************************************
 
 extension Panel3d {
+    
+    func CalcVisible3d() -> Float {
+        //perform 3d culling
+        //assume panel is visible
+        var Visible: Float = 1
+        
+        //CalcBFace and CheckExtents in next class extension
+        Visible = CalcBFace()
+        
+        //If Panel still visible perform extent test
+        //is there a better way to bool an int in swift? WTF is this language.
+        if (Visible == 1) {
+            Visible = CheckExtents()
+        }
+        return Visible
+    }
     
     //CLIPS THE 3D POINTS BASED ON MINZ
     //creates the values for SPoint array --> 2d projections
     //this will all have to be revised to Metal's 2D coordinate system
     //COMBINED CLIPPING AND PROJECTION FUNCTION
     //CAN I UNCOMBINE?
-    func Project() {
+    func ProjectClips() {
         //perform front Z-clippng and project the panel's 3d points onto the screen
 
         var StartI = VPoint.count-2
@@ -283,7 +256,7 @@ extension Panel3d {
     
     //SCREEN PROJECTION
     //Load up the Screen Points parameter SPoints
-    func Rasterize() {
+    func DisplayPoints() {
         //reset our screen points
         SPoint = []
         
@@ -308,34 +281,7 @@ extension Panel3d {
         
     }
 
-    func CalcVisible3d() -> Float {
-        //perform 3d culling
-        //assume panel is visible
-        var Visible: Float = 1
-        
-        Visible = CalcBFace()
-        
-        //If Panel still visible perform extent test
-        //is there a better way to bool an int in swift? WTF is this language.
-        if (Visible == 1) {
-            Visible = CheckExtents()
-        }
-        return Visible
-    }
     
-    func CalcCenterZ() -> Float {
-        var SummedComponents, CenterZ: Float
-        
-        SummedComponents = VPoint[0].world[z] +
-                            VPoint[1].world[z] +
-                            VPoint[2].world[z] +
-                            VPoint[3].world[z]
-        
-        CenterZ = SummedComponents/Float(VPoint.count)
-        
-        return CenterZ
-        
-    }
     
     public func ResetCalc2dData() {
         self.XMinInVis = 0 // < MinX -- left bound
@@ -384,7 +330,7 @@ extension Panel3d {
         if (XMinInVis >= SPoint.count) {
             debugMsg("XMinInVis")
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
-            AveX /= Float(SPCount)
+            AveX /= Float(SPoint.count)
             Invis = Float(abs(AveX)/(Float(WIDTH)*26))
             Visible = 0
         }
@@ -415,6 +361,153 @@ extension Panel3d {
         return Visible
     }
     
+    func Display() -> simd_float3 {
+        // could this entire function be shortcut by Metal? Yes.
+        //but for right now, I'd like to have CUTTING EDGE output 2D Points
+        //and then METAL can render the 2D points
+
+        var RColor: Float // color of the panel
+        //var DPtr: Float // pointer to the off-screen buffer (!)
+        //var ZPtr: [Float] // Zbuffer ptr
+           
+        var LeftSeg = CeilLine()
+        var RightSeg = CeilLine() // used for interpolating values along sides
+           
+        var  Height,  Width, XStart, XEnd, DeltaZ, ZStep, Z: Float
+        var YIndex, RightPos, LeftPos, Top, EdgeCount, NewRightPos, NewLeftPos: Int
+        Top = 0
+        
+        //clear the ZBuffer --> will revisit this if it proves to be a bottleneck
+        ZBuffer = [:]
+        
+        RColor = Color
+        EdgeCount = SPoint.count
+           
+        //STEP 1: FIND THE TOP OF THE PANEL
+        for N in 0...SPoint.count-1 {
+            if (SPoint[N].Y < SPoint[Top].Y) {
+                Top = N
+            }
+        }
+        RightPos = Top
+        LeftPos = Top
+           
+        //STEP 2: CALCULATE INTERPOLANTS FOR THE LEFT AND RIGHT PANEL EDGES (RightSeg, LeftSeg)
+        while (EdgeCount > 0) {
+            
+            //determine if the right side of the polygon needs interpolation
+            if (RightSeg.Height() <= 0) {
+                print("Always true?")
+                NewRightPos = RightPos + 1
+            if (NewRightPos >= SPoint.count ) {
+                NewRightPos = 0}
+                RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
+                RightPos = NewRightPos
+                EdgeCount -= 1
+                //perform object precision clip on top edge
+                //(if necessary)
+                if (RightSeg.GetY() < MINY) {
+                    RightSeg.ClipTop(MINY)
+                    //YIndex = Int(MINY * WIDTH)
+                   }
+               }
+               //determine if the left side of the polygon needs interpolation
+               if (LeftSeg.Height() <= 0) {
+                   NewLeftPos = LeftPos - 1
+                   if (NewLeftPos < 0) {
+                    NewLeftPos = (SPoint.count - 1 )
+                   }
+                   LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
+                   LeftPos = NewLeftPos
+                   EdgeCount -= 1
+                   // perform object precision clip if neccessary
+                   if (LeftSeg.GetY() < MINY) {
+                       LeftSeg.ClipTop(MINY)
+                    //YIndex = Int(MINY * WIDTH)
+                   }
+               }
+               
+               //subdivide polygon into trapezoid
+               if (LeftSeg.Height() < RightSeg.Height()) {
+                   Height = LeftSeg.Height()
+                   if ( (LeftSeg.GetY() + Height) > MAXY) {
+                       Height = MAXY - LeftSeg.GetY()
+                       EdgeCount = 0
+                   }
+               } else {
+                   Height = RightSeg.Height()
+                   if ( (RightSeg.GetY() + Height ) > MAXY ) {
+                       Height = MAXY - RightSeg.GetY()
+                       EdgeCount = 0
+                   }
+               }
+               
+               //loop for the height of the trapezoid
+               while (Height > 0) {
+                   Height -= 1
+                   XStart = LeftSeg.GetX()
+                   XEnd = RightSeg.GetX()
+                   Width = XEnd - XStart
+                   if (Width > 0) {
+                       Z = LeftSeg.GetZ()
+                       DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
+                       ZStep = DeltaZ / Width
+                       
+                       //Clip the scan line
+                       var f: simd_float4
+                       f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
+                    XStart = f[0]
+                       XEnd = f[1]
+                       Z = f[2]
+                       ZStep = f[3]
+                       Width = XEnd - XStart
+                       
+                       //DPtr = Dest[YIndex + XStart]
+                       //DPtr is assigned the buffer location
+                       //We need to do the opposite -- assign the vertix to the buffer
+                       
+                       //Pass Along the 2D Point ????
+                       
+                       let X = Float(Width)
+                       let Y = Float(Height)
+                    
+                    //I'm going to use a dictionary instead of the pointer nonsense the original C++ uses
+                    //I should be able to look up any X,Y coordinate, see if it has a Z value, and go from there
+                    ZBuffer[simd_float2(X, Y)] = Z
+                       //ZPtr = ZBuffer[YIndex + Int(XStart)]
+                       
+                       vCount += 1
+                       print("Panel3d-> Display")
+                       
+                       /*
+                     //loop for width of scan-LINE_MAX
+                       while ( Width > 0 ) {
+                           Width -= 1
+                           if (ZPtr < Z) {
+                               ZPtr = Z
+                               //DPtr = (Z >> 18) // bit shift
+                           }
+                           Z += ZStep
+                           //DPtr += 1
+                           ZPtr += 1
+                       }*/
+                        return (simd_make_float3(X, Y, Float(Z)))
+                   }
+                   //YIndex += 320
+                       
+               }
+               
+           }
+           
+           //if 2d point was not created, return an empty float
+           return simd_make_float3(0)
+       }
+        
+}
+
+//HELPER FUNCTIONS FOR METHOD CALVISIBLE3D
+extension Panel3d {
+
     func CheckExtents() -> Float {
         
         var Visible: Float = 0
@@ -453,8 +546,7 @@ extension Panel3d {
         return Visible
     }
 
-    
-    
+
     func CalcBFace() -> Float {
         //determine if polygon is a backface
         var Visible: Float = 1
@@ -478,148 +570,56 @@ extension Panel3d {
         return Visible
     }
     
-    
-    
-    func Display() -> simd_float3 {
-        // could this entire function be shortcut by Metal? Yes.
-        //but for right now, I'd like to have CUTTING EDGE output 2D Points
-        //and then METAL can render the 2D points
-
-           var RColor: Float // color of the panel
-           var DPtr: Float // pointer to the off-screen buffer (!)
-           var ZPtr: Float // Zbuffer ptr
-           
-           var LeftSeg: CeilLine = CeilLine()
-           var RightSeg: CeilLine = CeilLine() // used for interpolating values along sides
-           
-           var  Height,  Width, XStart, XEnd, DeltaZ, ZStep, Z: Float
-           var YIndex, RightPos, LeftPos, Top, EdgeCount, NewRightPos, NewLeftPos: Int
-           Top = 0
-           
-           RColor = Color
-           EdgeCount = SPCount
-           
-           //Search for lowest Y Coordinate (top of polyon)
-        for N in 0...SPoint.count-1 {
-               if (SPoint[N].Y < SPoint[Top].Y) {
-                   Top = N
-               }
-           }
-           RightPos = Top
-           LeftPos = Top
-           
-           //Calculate the index to the buffer
-           YIndex = Int(SPoint[Top].Y * WIDTH)
-           print("Hard coded 320 in Panel3d -> Display")
-           
-           //loop for all Polygon edges
-           while (EdgeCount > 0) {
-               //determine if the right side of the polygon needs (re)initializing
-               if (RightSeg.Height() <= 0) {
-                   NewRightPos = RightPos + 1
-                   if (NewRightPos >= SPCount ) {
-                       NewRightPos = 0}
-                   RightSeg = CeilLine(P1: SPoint[RightPos], P2: SPoint[NewRightPos])
-                   RightPos = NewRightPos
-                   EdgeCount -= 1
-                   //perform object precision clip on top edge
-                   //(if necessary)
-                   if (RightSeg.GetY() < MINY) {
-                       RightSeg.ClipTop(MINY)
-                       YIndex = Int(MINY * WIDTH)
-                       print("Hard coded value 320 in Panel3d->Display->RightSegGetY Conditional")
-                   }
-               }
-               //determine if the left side of the polygon needs (re)initializing
-               if (LeftSeg.Height() <= 0) {
-                   NewLeftPos = LeftPos - 1
-                   if (NewLeftPos < 0) {
-                       NewLeftPos = (SPCount - 1 )
-                   }
-                   LeftSeg = CeilLine(P1: SPoint[LeftPos], P2: SPoint[NewLeftPos])
-                   LeftPos = NewLeftPos
-                   EdgeCount -= 1
-                   // perform object precision clip if neccessary
-                   if (LeftSeg.GetY() < MINY) {
-                       LeftSeg.ClipTop(MINY)
-                    YIndex = Int(MINY * WIDTH)
-                   }
-               }
-               
-               //subdivide polygon into trapezoid
-               if (LeftSeg.Height() < RightSeg.Height()) {
-                   Height = LeftSeg.Height()
-                   if ( (LeftSeg.GetY() + Height) > MAXY) {
-                       Height = MAXY - LeftSeg.GetY()
-                       EdgeCount = 0
-                   }
-               } else {
-                   Height = RightSeg.Height()
-                   if ( (RightSeg.GetY() + Height ) > MAXY ) {
-                       Height = MAXY - RightSeg.GetY()
-                       EdgeCount = 0
-                   }
-               }
-               
-               //loop for the height of the trapezoid
-               while (Height > 0) {
-                   Height -= 1
-                   XStart = LeftSeg.GetX()
-                   XEnd = RightSeg.GetX()
-                   Width = XEnd - XStart
-                   if (Width > 0) {
-                       Z = LeftSeg.GetZ()
-                       DeltaZ = (RightSeg.GetZ() - LeftSeg.GetZ() )
-                       ZStep = DeltaZ / Width
-                       
-                       //Clip the scan line
-                       var f: simd_float4
-                       f = ClipHLine(X1: XStart, X2: XEnd, Z: Z, ZStep: ZStep)
-                       XStart = Float(f[0])
-                       XEnd = Float(f[1])
-                       Z = Float(f[2])
-                       ZStep = Float(f[3])
-                       Width = XEnd - XStart
-                       
-                       //DPtr = Dest[YIndex + XStart]
-                       //DPtr is assigned the buffer location
-                       //We need to do the opposite -- assign the vertix to the buffer
-                       
-                       //Pass Along the 2D Point ????
-                       
-                       let X = Float(Width)
-                       let Y = Float(Height)
-                       ZPtr = ZBuffer[YIndex + Int(XStart)]
-                       
-                       
-                       vCount += 1
-                       print("Panel3d-> Display")
-                       
-                       
-                       //loop for width of scan-LINE_MAX
-                       while ( Width > 0 ) {
-                           Width -= 1
-                           if (ZPtr < Z) {
-                               ZPtr = Z
-                               //DPtr = (Z >> 18) // bit shift
-                           }
-                           Z += ZStep
-                           //DPtr += 1
-                           ZPtr += 1
-                       }
-                        return (simd_make_float3(X, Y, Float(Z)))
-                   }
-                   YIndex += 320
-                       
-               }
-               
-           }
-           
-           //if 2d point was not created, return an empty float
-           return simd_make_float3(0)
-       }
+    //is there a more Swift way to do this? Probably.
+    func CalcCenterZ() -> Float {
+        var SummedComponents, CenterZ: Float
+        
+        SummedComponents = VPoint[0].world[z] +
+                            VPoint[1].world[z] +
+                            VPoint[2].world[z] +
+                            VPoint[3].world[z]
+        
+        CenterZ = SummedComponents/Float(VPoint.count)
+        
+        return CenterZ
         
     }
+}
+
+
+// CLIP A HORIZONTAL Z-BUFFERED LINE
+public func ClipHLine (X1: Float, X2: Float, Z: Float, ZStep: Float ) -> simd_float4 {
+    var  f = simd_make_float4(0)
+    var x1, x2, z, zstep: Float
+    x1 = X1
+    x2 = X2
+    z = Z
+    zstep = ZStep
+    
+    if ( x1 < MINX ) {
+           // Take advantage of the fact that ( a * ( b * f ) / f )
+           // is equal to ( a * b );
+        z += zstep * ( MINX - x1 )
+        x1 = MINX
+    }
+    
+    //if point x1 is greater than the max, x1 becomes the max
+    if ( x1 > MAXX ) {
+        x1 = MAXX}
+    //if point x2 is less than the min, then x2 becomes the min
+    if ( x2 < MINX ) {
+        x2 = MINX}
+    
+    if  ( x2 > MAXX ) {
+        x2 = MAXX}
+        
+    f[0] = x1
+    f[1] = x2
+    f[2] = z
+    f[3] = zstep
+    return f
+}
+
 
         
 ///OLD DISPLAY FUNCTION
@@ -634,6 +634,3 @@ extension Panel3d {
  
     
     */
-
-
-        

@@ -84,7 +84,7 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     ZTrans += 1
     if (FrameCount / Float(MaxWait) == 1) {
         ZTrans = 0
-        ZBuffer = []
+        ZBuffer = [:]
     }
     VertexData = []
     VertexData.append(contentsOf: W.Display(M))

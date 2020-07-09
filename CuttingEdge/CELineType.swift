@@ -6,9 +6,6 @@
 //  Copyright © 2020 brogrammer. All rights reserved.
 //
 
-let XSTEP_PREC = 10 //used for bitshifting... not sure how that will work here
-let ZSTEP_PREC = 100
-
 class CeilLine {
     var X1, X2, Y1, Y2: Float
     var X, StepX, StepZ, Z: Float
@@ -26,9 +23,9 @@ class CeilLine {
         FWidth = (X2-X1)
         DeltaZ = (Z2-Z1)
         
-        X = X1 + CEIL_FRACT
+        X = X1
         Y = Y1
-        Z = Z1 //+ ZTrans -- What is ZTrans?
+        Z = Z1
         
         if (EdgeHeight > 0) {
             StepX = FWidth / EdgeHeight
@@ -62,6 +59,10 @@ class CeilLine {
         return Temp
     }
     
+    //steps edge by amount (right value)
+    static func += (left: CeilLine, right: Float) {left.Step(Amount: right)}
+    
+    
     func Height() -> Float {
         return EdgeHeight
     }
@@ -87,8 +88,8 @@ class CeilLine {
         if (Y<Top) {
             if (h > 0) {
             Step = Top - Y
-            SlopeX = Float(X2-X1) / Float(h)
-            X = X1 + SlopeX * Step + CEIL_FRACT
+            SlopeX = X2-X1 / h
+            X = X1 + SlopeX * Step
             Y = Top
             Z += StepZ * Step
             EdgeHeight -= Step

@@ -83,13 +83,14 @@ public class PanelObject {
                 
                 //check whether it is visible in 3d space
                 if p.CalcVisible3d() == 1 {
-                    //Clip
-                    p.Project()
-                    //Rasterize to screen coordinates
-                    p.Rasterize()
+                    //Clip the 3d panels (fill ZClipPoints)
+                    p.ProjectClips()
+                    //Create the display points (fill SPoints)
+                    p.DisplayPoints()
                     
                     //check if the Screen Points are Visible
                     if p.CalcVisible2d() == 1 {
+                        //Rasterize
                         data.append(p.Display())
                         print(data)
                     }
