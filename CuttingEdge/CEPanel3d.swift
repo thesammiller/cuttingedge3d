@@ -264,8 +264,6 @@ extension Panel3d {
             //calculate 1/z for vector normalization
             let OneOverZ = Float(1)/zc.world[z]
             var screenPoint = Point2d()
-            let zclip = OneOverZ * Float(XSCALE) * zc.world[z]
-            print(zclip)
             
             let screenX = zc.world[x] * XSCALE * OneOverZ
             let screenY = zc.world[y] * YSCALE * OneOverZ
@@ -281,8 +279,6 @@ extension Panel3d {
         
     }
 
-    
-    
     public func ResetCalc2dData() {
         self.XMinInVis = 0 // < MinX -- left bound
         self.XMaxInVis = 0 // > MaxX -- right bound
@@ -297,6 +293,7 @@ extension Panel3d {
     
     func CalcVisible2d() -> Int {
         // perform 2d culling
+        
         ResetCalc2dData()
         
         // make sure the panel has more than two points --> not just a line!
@@ -455,7 +452,7 @@ extension Panel3d {
                 if (LeftSeg.GetY() < MINY) {
                     LeftSeg.ClipTop(MINY)
                    }
-               }
+            }
                
             //subdivide polygon into trapezoid
             //first -- determine the shortest segment and store the value into height
@@ -495,7 +492,6 @@ extension Panel3d {
                     ZStep = f[3]
                     Width = XEnd - XStart
                     
-                    
                     let Y = Float(Height)
                     for x in 0...Int(Width) {
                         let X = Float(x)
@@ -503,9 +499,7 @@ extension Panel3d {
                             if XBuffer.contains(X) {
                                 if ZBuffer.keys.contains(simd_float2(X, Y)) {
                                     if ZBuffer[simd_float2(X, Y)]! < Z {
-                                        
                                         ZBuffer[simd_float2(X, Y)] = Z
-                                        
                                     }
                                     else {
                                         continue
@@ -514,7 +508,8 @@ extension Panel3d {
                             }
                         }
                         
-                        
+                        XBuffer.append(X)
+                        YBuffer.append(Y)
                         ZBuffer[simd_float2(X, Y)] = Z
                     }
                     
