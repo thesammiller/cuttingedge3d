@@ -125,8 +125,7 @@ extension PanelObject {
         
         //load list of panels
         po.PList = DXFLoadFaces(DXFLines)
-        
-        
+                
         return po
     }
     

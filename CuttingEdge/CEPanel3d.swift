@@ -88,7 +88,7 @@ extension Panel3d {
             Distance.append(Dist)
         }
         
-        for d in Distance {Dist = d; break}
+        Dist = Distance[0]
         
         for Count in Distance {
             if Count > Dist {
@@ -96,7 +96,7 @@ extension Panel3d {
             }
         }
         
-        Radius = Dist
+        self.Radius = Dist
         
     }
         
@@ -189,7 +189,9 @@ extension Panel3d {
     //CAN I UNCOMBINE?
     func ProjectClips() {
         //perform front Z-clippng and project the panel's 3d points onto the screen
-
+        
+        //reset the ZClipBuffer
+        ZClipPoint = []
         var StartI = VPoint.count-2
         
         //loop through all edges of panel using Sutherland-Hodgman algorithm
@@ -268,14 +270,13 @@ extension Panel3d {
             let screenX = zc.world[x] * XSCALE * OneOverZ
             let screenY = zc.world[y] * YSCALE * OneOverZ
             
-            screenPoint.X = screenX + Float(WIDTH)/2.0
-            screenPoint.Y = screenY + Float(HEIGHT)/2.0
+            screenPoint.X = screenX + Float(WIDTH)/2
+            screenPoint.Y = screenY + Float(HEIGHT)/2
             screenPoint.Z = OneOverZ
             
             SPoint.append(screenPoint)
         }
-        //reset ZClipPoint count for next loop
-        ZClipPoint = []
+ 
         
     }
 
