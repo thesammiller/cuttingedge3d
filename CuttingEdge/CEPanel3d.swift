@@ -503,7 +503,9 @@ extension Panel3d {
                             if XBuffer.contains(X) {
                                 if ZBuffer.keys.contains(simd_float2(X, Y)) {
                                     if ZBuffer[simd_float2(X, Y)]! < Z {
+                                        
                                         ZBuffer[simd_float2(X, Y)] = Z
+                                        
                                     }
                                     else {
                                         continue
@@ -511,6 +513,8 @@ extension Panel3d {
                                 }
                             }
                         }
+                        
+                        
                         ZBuffer[simd_float2(X, Y)] = Z
                     }
                     

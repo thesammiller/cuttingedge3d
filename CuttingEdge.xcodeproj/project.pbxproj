@@ -25,6 +25,7 @@
 		4CE6965424A051F5008CDD0F /* CE3DClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6965324A051F5008CDD0F /* CE3DClass.swift */; };
 		4CE6965624A06BE0008CDD0F /* CEMatrix3d.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6965524A06BE0008CDD0F /* CEMatrix3d.swift */; };
 		4CE6965824A07228008CDD0F /* MTLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6965724A07228008CDD0F /* MTLShaders.metal */; };
+		4CE75C4824B90AC2004C7A9A /* TEST3.DXF in Resources */ = {isa = PBXBuildFile; fileRef = 4CE75C4724B90AC2004C7A9A /* TEST3.DXF */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		4CE6965324A051F5008CDD0F /* CE3DClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CE3DClass.swift; sourceTree = "<group>"; };
 		4CE6965524A06BE0008CDD0F /* CEMatrix3d.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEMatrix3d.swift; sourceTree = "<group>"; };
 		4CE6965724A07228008CDD0F /* MTLShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MTLShaders.metal; sourceTree = "<group>"; };
+		4CE75C4724B90AC2004C7A9A /* TEST3.DXF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TEST3.DXF; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 				4CE6965724A07228008CDD0F /* MTLShaders.metal */,
 				4CA2235924A2FBD10004AE02 /* TEST.DXF */,
 				4C36366E24A41B6F0023C3DD /* TEST2.DXF */,
+				4CE75C4724B90AC2004C7A9A /* TEST3.DXF */,
 				4CE6963B24A00B71008CDD0F /* Assets.xcassets */,
 				4CE6963D24A00B71008CDD0F /* Main.storyboard */,
 				4CE6964024A00B71008CDD0F /* Info.plist */,
@@ -166,6 +169,7 @@
 				4CE6963C24A00B71008CDD0F /* Assets.xcassets in Resources */,
 				4CA2235A24A2FBD10004AE02 /* TEST.DXF in Resources */,
 				4CE6963F24A00B71008CDD0F /* Main.storyboard in Resources */,
+				4CE75C4824B90AC2004C7A9A /* TEST3.DXF in Resources */,
 				4C36366F24A41B6F0023C3DD /* TEST2.DXF in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

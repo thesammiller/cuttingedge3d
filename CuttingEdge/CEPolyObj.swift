@@ -66,6 +66,7 @@ public class PanelObject {
         self.Transform(M)
         
         var data: [simd_float3] = []
+        VList = []
         
         //generate a VECTOR LIST so we can (in other functions) go through all the vectors in this poly object
         for p in PList {
@@ -92,12 +93,13 @@ public class PanelObject {
                         var ZDict = p.Display()
                         for p2d in ZDict.keys {
                             
-                            
                             //Convert to Metal Dimensions
+                            // X (-1, 1) Y (-1, 1) Z (0, 1)
+                            //Front Left = (-1, -1, 0)
+                            //Back Right = (1, 1, 1)
                             let XVal = -1 + (p2d[0]/WIDTH) * 2
                             let YVal = -1 + (p2d[1]/HEIGHT) * 2
-                            let ZVal = ZDict[p2d]! * 1000
-                            
+                            let ZVal = 1-(ZDict[p2d]! * 1000)
                             
                             data.append(simd_float3(XVal, YVal, ZVal))
                         }
@@ -124,6 +126,7 @@ extension PanelObject {
         //load list of panels
         po.PList = DXFLoadFaces(DXFLines)
         
+        
         return po
     }
     
@@ -149,6 +152,7 @@ extension PanelObject {
             //add the new vertices to a new panel
             let newPanel = Panel3d(Verteces: newVerts)
             //add each panel to the list
+            
             panelList.append(newPanel)
         
         }

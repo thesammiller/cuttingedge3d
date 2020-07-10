@@ -62,7 +62,6 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     //2D Points
     VertexData = World.Display(Matrix)
     
-    print("First world displayed.")
     
     FrameCount = 0
     StartTime = clock()
@@ -88,7 +87,7 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     }
     
     VertexData = W.Display(M)
-    print("World vertex loaded.")
+    
         
     /*EndTime = clock()
     let FrameTime = EndTime-StartTime
