@@ -59,9 +59,11 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     Matrix.Rotate(-V.XRot, V.YRot, -V.ZRot)
     V.Clear()
     
-    //2D Points
+    
     VertexData = World.Display(Matrix)
     
+    //Metal Test Data --> 2D Points
+    /*VertexData = [SIMD3<Float>(-1.0, -1.0, 0.5), SIMD3<Float>(-1.0, 0.0, 0.5), SIMD3<Float>(1.0, 1.0, 0.5)]*/
     
     FrameCount = 0
     StartTime = clock()
@@ -87,6 +89,10 @@ public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
     }
     
     VertexData = W.Display(M)
+    
+    
+    //Test Data
+    /*VertexData = [SIMD3<Float>(-1.0, -1.0, 0.5), SIMD3<Float>(0.0, 0.0, 0.5), SIMD3<Float>(1.0, 1.0, 0.5)]*/
     
         
     /*EndTime = clock()
