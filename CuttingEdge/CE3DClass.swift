@@ -11,7 +11,7 @@ import MetalKit
 
 
 //DXF file to load for the World Model
-let WORLD_MODEL = "TEST"
+let WORLD_MODEL = "TEST4"
 
 let DEBUG = true
 let DEBUGMOUSE = false // xy mouse location... it's a lot
@@ -56,7 +56,7 @@ let EMPTY_MATRIX = float4x4(0)
 
 // THINK TWICE BEFORE ALTERING MAGIC NUMBERS... 
 
-let PI = 3.141592654
+let PI = Float(3.141592654)
 
 let WIDTH = Float(320)
 let MINX = 0.05 * WIDTH

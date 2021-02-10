@@ -182,6 +182,8 @@ extension Panel3d {
         return Visible
     }
     
+    //TODO: Fix this
+    //----------------------------------------------------------------
     //CLIPS THE 3D POINTS BASED ON MINZ
     //creates the values for SPoint array --> 2d projections
     //this will all have to be revised to Metal's 2D coordinate system
@@ -189,6 +191,7 @@ extension Panel3d {
     //CAN I UNCOMBINE?
     func ProjectClips() {
         //perform front Z-clippng and project the panel's 3d points onto the screen
+      /*
         
         //reset the ZClipBuffer
         ZClipPoint = []
@@ -252,15 +255,17 @@ extension Panel3d {
                 }
             //advance to next vertex
             StartI = EndI
-        }
+        }*/
+       ZClipPoint = VPoint
         
     }
     
     //SCREEN PROJECTION
     //Load up the Screen Points parameter SPoints
-    func DisplayPoints() {
+    /*func DisplayPoints() {
         //reset our screen points
         SPoint = []
+        
         
         for zc in ZClipPoint {
             //calculate 1/z for vector normalization
@@ -275,10 +280,23 @@ extension Panel3d {
             screenPoint.Z = OneOverZ
             
             SPoint.append(screenPoint)
-        }
- 
+        }*/
+  
+      func DisplayPoints() {
+          SPoint = []
+          let m = Matrix3d.perspectiveProjection(70, fieldOfViewY: 10, near: 10, far: 100)
         
-    }
+          for z in ZClipPoint {
+            var p2d = Point2d()
+            let t = z.local * m.Matrix
+            p2d.X = t.x
+            p2d.Y = t.y
+            p2d.Z = t.z
+            SPoint.append(p2d)
+        }
+        
+      }
+    
 
     public func ResetCalc2dData() {
         self.XMinInVis = 0 // < MinX -- left bound
@@ -294,7 +312,7 @@ extension Panel3d {
     
     func CalcVisible2d() -> Int {
         // perform 2d culling
-        
+        /*
         ResetCalc2dData()
         
         // make sure the panel has more than two points --> not just a line!
@@ -326,20 +344,20 @@ extension Panel3d {
         
         //do we have as many invisible x components as points?
         if (XMinInVis >= SPoint.count) {
-            debugMsg("XMinInVis")
+            //debugMsg("XMinInVis")
             //Assume panel will remain invisible for a time proportional to the distance from the edge of viewport
             AveX /= Float(SPoint.count)
             Invis = Float(abs(AveX)/(Float(WIDTH)*26))
             Visible = 0
         }
         if (YMinInVis >= SPoint.count) {
-            debugMsg("YMinInVis")
+            //debugMsg("YMinInVis")
             AveY /= Float(SPoint.count)
             Invis = Float(abs(AveY)*(Float(HEIGHT)*26))
             Visible = 0
             }
         if (XMaxInVis >= SPoint.count) {
-            print("XMaxInVis")
+            //print("XMaxInVis")
             //assume panel will remain invisible for a time
             AveX /= Float(SPoint.count)
             let num = (AveX-Float(MAXX))
@@ -348,19 +366,19 @@ extension Panel3d {
             Visible = 0
         }
         if (YMaxInVis >= SPoint.count) {
-            print("Ymaxinvis \(YMaxInVis)")
+            //print("Ymaxinvis \(YMaxInVis)")
             AveY/=Float(SPoint.count)
             let num = (AveY-Float(MAXY))
             let den = Float(HEIGHT*26)
             Invis = Float(num/den)
             Visible = 0
-        }
-        
+        }*/
+        var Visible = 1
         return Visible
     }
     
     func Display() -> [simd_float2:Float] {
-        
+        /*
         // color of the panel
         var RColor: Float
         
@@ -520,8 +538,18 @@ extension Panel3d {
                }
            } // exited main while loop
            
-        return ZBuffer
-        }
+        
+        */
+        
+      var factor = Float(3.0)
+      for sp in SPoint {
+        var key = simd_float2(sp.X / factor, sp.Y / factor)
+        var value = sp.Z / factor
+        ZBuffer[key] = value
+      }
+      return ZBuffer
+      }
+      
 
     }
         
@@ -531,6 +559,8 @@ extension Panel3d {
 extension Panel3d {
 
     func CheckExtents() -> Float {
+      let Visible = Float(1.0)
+      /*
         
         var Visible: Float = 0
         var MinZ: Float
@@ -563,7 +593,7 @@ extension Panel3d {
         else {
             //make invisible
             Invis = Float((abs(CalcCenterZ()))/50)
-        }
+        }*/
         
         return Visible
     }
@@ -571,11 +601,16 @@ extension Panel3d {
 
     func CalcBFace() -> Float {
         //determine if polygon is a backface
+      
+      /*
         var Visible: Float = 1
         var Invis: Float = 0
         var Direction: Float
         
         var V: Point3d = self.VPoint[0]
+        
+      
+        //-----------------------------------------------------------------------
         
         Direction = V.world[x] * (Normal.transformed[x] - VPoint[0].world[x]) +
         V.world[y] * (Normal.transformed[y] - VPoint[0].world[y]) +
@@ -589,19 +624,20 @@ extension Panel3d {
             Visible = 0
             
         }
-        return Visible
+        return Visible*/
+        return 1
     }
     
-    //is there a more Swift way to do this? Probably.
     func CalcCenterZ() -> Float {
-        var SummedComponents, CenterZ: Float
-        
-        SummedComponents = VPoint[0].world[z] +
-                            VPoint[1].world[z] +
-                            VPoint[2].world[z] +
-                            VPoint[3].world[z]
-        
-        CenterZ = SummedComponents/Float(VPoint.count)
+        var CenterZ: Float
+      
+        var sum = Float(0)
+      
+        for v in VPoint {
+          sum = sum + v.world[z]
+        }
+                
+        CenterZ = sum / Float(VPoint.count)
         
         return CenterZ
         

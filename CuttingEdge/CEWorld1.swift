@@ -37,14 +37,15 @@ public class CEView {
     }
 }
 
-func UpdatePos(V: CEView) {
-    let X = Float(MouseX-50) / 4
-    let Y = Float(MouseY-50) / 4
+func UpdatePos(V: CEView) -> CEView {
+    let X = Float(MouseX-50)
+    let Y = Float(MouseY-50)
     
     if MouseClick {
         V.ZPos -= Y * Float(3)
         V.YRot += Float(X)
     }
+    return V
 }
 
 public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
@@ -52,47 +53,50 @@ public func CreateWorld(W: PanelObject, M: Matrix3d, V: CEView)  {
     var Matrix = M
     
     ZTrans = 0
+    var v = CEView()
+    v = UpdatePos(V: V)
     
-    UpdatePos(V: V)
-    
-    Matrix.Translate(0, 0, -V.ZPos)
-    Matrix.Rotate(-V.XRot, V.YRot, -V.ZRot)
-    V.Clear()
+  
+  //CEView Z Position
+    Matrix.Translate(0, 0, -v.ZPos)
+    Matrix.Rotate(-v.XRot, v.YRot, -v.ZRot)
+    v.Clear()
     
     
     VertexData = World.Display(Matrix)
     
-    //Metal Test Data --> 2D Points
+      // Metal Test Data --> 2D Points
     /*VertexData = [SIMD3<Float>(-1.0, -1.0, 0.5), SIMD3<Float>(-1.0, 0.0, 0.5), SIMD3<Float>(1.0, 1.0, 0.5)]*/
     
     FrameCount = 0
     StartTime = clock()
 }
 
-public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) {
+public func WorldLoop(W: PanelObject, M: Matrix3d, V: CEView) -> [simd_float3] {
     
     
-    var FramesPerSecond: Float
-    var MaxWait: Float
+    //var FramesPerSecond: Float
+    //var MaxWait: Float
+    //MaxWait = Float(256*256)
     
-    MaxWait = Float(256*256)
+    var v = UpdatePos(V: V)
+    M.Translate(0, 0, -v.ZPos)
+    M.Rotate(-v.XRot, v.YRot, -v.ZRot)
+    v.Clear()
     
-    UpdatePos(V: V)
-    M.Translate(0, 0, -V.ZPos)
-    M.Rotate(-V.XRot, V.YRot, -V.ZRot)
-    V.Clear()
-    
-    ZTrans += 1
+    /*ZTrans += 1
     if (FrameCount / Float(MaxWait) == 1) {
         ZTrans = 0
         ZBuffer = [:]
-    }
+    }*/
     
     VertexData = W.Display(M)
+  
+    return VertexData
     
     
     //Test Data
-    /*VertexData = [SIMD3<Float>(-1.0, -1.0, 0.5), SIMD3<Float>(0.0, 0.0, 0.5), SIMD3<Float>(1.0, 1.0, 0.5)]*/
+  /*VertexData = [SIMD3<Float>(0.0, 0.0, 1.0), SIMD3<Float>(-1.0, 0.0, 0.5), SIMD3<Float>(1.0, 0.0, 0.0)] */
     
         
     /*EndTime = clock()

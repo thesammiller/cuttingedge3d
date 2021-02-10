@@ -64,24 +64,23 @@ public class Matrix3d {
         
         RMatrix = IDENTITY_MATRIX
         
-        print("Rotating Matrices...")
-        print("Checking Cos/Sin manually (TODO: LUT).")
+        //print("Rotating Matrices...")
+        //TODO: Cos/Sin manually
+      // make it LUT (?)
         
-        //initialize Z rotation first
-        let fZa = Float(Za)
-        let cosfza = cos(fZa)
-        let sinfza = sin(fZa)
+        //initialize Z rotation first --> translate to radians
+        let fZa = Float(Za) * PI / 180
         
         Rmat = IDENTITY_MATRIX
-        Rmat[0][0] = cosfza
-        Rmat[0][1] = sinfza
-        Rmat[1][0] = sinfza
-        Rmat[1][1] = cosfza
+        Rmat[0][0] = cos(fZa)
+        Rmat[0][1] = sin(fZa)
+        Rmat[1][0] = sin(fZa)
+        Rmat[1][1] = cos(fZa)
         
         RMatrix *= Rmat
         
         //initialize X Rotation Matrix
-        let fXa = Float(Xa)
+        let fXa = Float(Xa) * PI / 180
         let cosfxa = cos(fXa)
         let sinfxa = sin(fXa)
         
@@ -94,7 +93,7 @@ public class Matrix3d {
         RMatrix *= Rmat
         
         //initialize Y Rotation Matrix
-        let fYa = Float(Ya)
+        let fYa = Float(Ya) * PI/180
         let cosfya = cos(fYa)
         let sinfya = sin(fYa)
         
@@ -161,5 +160,30 @@ public class Matrix3d {
         return p
     }
     
+  
+  static func perspectiveProjection(_ aspect: Float32,
+                                    fieldOfViewY: Float32,
+                                    near: Float32,
+                                    far: Float32) -> Matrix3d
+  {
+    var mat = Matrix3d()
+    
+    let fovRadians = fieldOfViewY * Float32(PI / 180)
+    
+    let yScale = 1 / tan(fovRadians * 0.5)
+    let xScale = yScale / aspect
+    let zRange = far - near
+    let zScale = -(far + near) / zRange
+    let wzScale = -2 * far * near / zRange
+    
+    mat.Matrix[0].x = fovRadians * fieldOfViewY
+    mat.Matrix[1].y = fovRadians
+    mat.Matrix[2].z = zScale
+    mat.Matrix[2].w = wzScale
+    mat.Matrix[2].w = -1
+    
+    
+    return mat
+  }
     
 }

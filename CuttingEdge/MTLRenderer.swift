@@ -67,7 +67,7 @@ class Renderer: NSObject, MTKViewDelegate {
         // middle
         
         M = Matrix3d()
-        M.Translate(0, -600, 0)
+        M.Translate(0, 0, 0)
 
         V = CEView()
         W = PanelObject()
@@ -82,8 +82,8 @@ class Renderer: NSObject, MTKViewDelegate {
     func draw(in view: MTKView) {
         
         //Trigger Game Engine --> Loads VertexData
-        WorldLoop(W: W, M:M, V:V)
-        
+        VertexData = WorldLoop(W: W, M:M, V:V)
+        print(VertexData)
         if VertexData.count == 0 {
             VertexData = [simd_float3(repeating: 0)]
         }
@@ -123,6 +123,9 @@ class Renderer: NSObject, MTKViewDelegate {
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        
+        //TODO: Triangles -> Points
+        //SHOULD BE POINTS...
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: VertexData.count, instanceCount: 1)
         renderEncoder.endEncoding()
                 

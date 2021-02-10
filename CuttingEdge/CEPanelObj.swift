@@ -64,6 +64,8 @@ public class PanelObject {
     func Display(_ M: Matrix3d)  -> [simd_float3]// a display function
     {
         self.Transform(M)
+      
+        
         
         var data: [simd_float3] = []
         VList = []
@@ -71,6 +73,7 @@ public class PanelObject {
         //generate a VECTOR LIST so we can (in other functions) go through all the vectors in this poly object
         for p in PList {
             for v in p.VPoint {
+                //print(v.local)
                 VList.append(v)
             }
         }
@@ -80,9 +83,13 @@ public class PanelObject {
             
             // if the object is not already invisible
             if p.Invis == 0 {
+                //print("Panel not invisible")
                 
                 //check whether it is visible in 3d space
                 if p.CalcVisible3d() == 1 {
+                    //---------------------------------------------------------------
+                  
+                    //print("Calculated to be visible")
                     //Clip the 3d panels (fill ZClipPoints)
                     p.ProjectClips()
                     //Create the display points (fill SPoints)
@@ -103,7 +110,7 @@ public class PanelObject {
                             
                             data.append(simd_float3(XVal, YVal, ZVal))
                         }
-                        print(data)
+                        //print(data)
                         
                     }
                 }
@@ -119,9 +126,10 @@ extension PanelObject {
     
     func DXFLoadModel(_ FileName: String) -> PanelObject {
         var po = PanelObject()
-        
+        print("Loading file...")
         //Load the DXF File into a String Array
         let DXFLines = DXFLoadFile(FileName)
+        
         
         //load list of panels
         po.PList = DXFLoadFaces(DXFLines)
@@ -196,6 +204,7 @@ extension PanelObject {
             } else {Points[c].local[z] = 0.0}
             
             Points[c].world = simd_make_float4(1)
+            print(Points[c].local)
         
         }
         //return the points of the panel!
@@ -222,7 +231,7 @@ extension PanelObject {
             }
             // if we encounter a 3dface
             if tempLine == "3DFACE" {
-                //print("Found a face...")
+                print("Found a face...")
                 
                 // can discard the first 6 items
                 if lineCount+56 < Lines.count {

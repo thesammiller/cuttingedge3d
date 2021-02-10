@@ -26,6 +26,7 @@
 		4CE6965824A07228008CDD0F /* MTLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6965724A07228008CDD0F /* MTLShaders.metal */; };
 		4CE75C4824B90AC2004C7A9A /* TEST3.DXF in Resources */ = {isa = PBXBuildFile; fileRef = 4CE75C4724B90AC2004C7A9A /* TEST3.DXF */; };
 		D28950D425C51554007087E3 /* CEPanelObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28950D325C51554007087E3 /* CEPanelObj.swift */; };
+		D2B27D2C25D2E2020035818F /* TEST4.DXF in Resources */ = {isa = PBXBuildFile; fileRef = D2B27D2B25D2E2020035818F /* TEST4.DXF */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +52,7 @@
 		4CE6965724A07228008CDD0F /* MTLShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MTLShaders.metal; sourceTree = "<group>"; };
 		4CE75C4724B90AC2004C7A9A /* TEST3.DXF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TEST3.DXF; sourceTree = "<group>"; };
 		D28950D325C51554007087E3 /* CEPanelObj.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CEPanelObj.swift; sourceTree = "<group>"; };
+		D2B27D2B25D2E2020035818F /* TEST4.DXF */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TEST4.DXF; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 				4CA2235924A2FBD10004AE02 /* TEST.DXF */,
 				4C36366E24A41B6F0023C3DD /* TEST2.DXF */,
 				4CE75C4724B90AC2004C7A9A /* TEST3.DXF */,
+				D2B27D2B25D2E2020035818F /* TEST4.DXF */,
 				4CE6963B24A00B71008CDD0F /* Assets.xcassets */,
 				4CE6963D24A00B71008CDD0F /* Main.storyboard */,
 				4CE6964024A00B71008CDD0F /* Info.plist */,
@@ -167,6 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CE6963C24A00B71008CDD0F /* Assets.xcassets in Resources */,
+				D2B27D2C25D2E2020035818F /* TEST4.DXF in Resources */,
 				4CA2235A24A2FBD10004AE02 /* TEST.DXF in Resources */,
 				4CE6963F24A00B71008CDD0F /* Main.storyboard in Resources */,
 				4CE75C4824B90AC2004C7A9A /* TEST3.DXF in Resources */,

@@ -76,12 +76,12 @@ extension ViewController {
     
     override func mouseEntered(with event: NSEvent) {
         NSCursor.hide()
-        debugMsg("Mouse entered.")
+        //debugMsg("Mouse entered.")
     }
     
     override func mouseExited(with event: NSEvent) {
         NSCursor.unhide()
-        debugMsg("Mouse exited.")
+        //debugMsg("Mouse exited.")
     }
     
     override func mouseMoved(with event: NSEvent) {
@@ -98,7 +98,7 @@ extension ViewController {
     override func mouseDown(with event: NSEvent) {
         MouseClick = true
         
-        debugMsg("click")
+        //debugMsg("click")
     }
     
     override func mouseUp(with event: NSEvent) {
